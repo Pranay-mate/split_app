@@ -29,11 +29,6 @@ app.use('/api/', groupRoutes);
 app.use('/api/', expenseRoutes);
 
 
-
-// app.post('/api/google-login', async (req, res) => {
-
-// });
-
 const uri = "mongodb+srv://Pranay:KEYYs1PXzpmdEspb@cluster0.kx27fbs.mongodb.net/?retryWrites=true&w=majority";
 
 const port = process.env.PORT || 3000;
