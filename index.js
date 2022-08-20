@@ -36,7 +36,7 @@ app.use('/api/', expenseRoutes);
 
 const uri = "mongodb+srv://Pranay:KEYYs1PXzpmdEspb@cluster0.kx27fbs.mongodb.net/?retryWrites=true&w=majority";
 
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 3000;
 
 if(process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging'){
     app.use(express.static('client/build'))
