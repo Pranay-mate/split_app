@@ -44,7 +44,7 @@ function Activity() {
     const getAllGroupExpenses = ()=>{
         console.log('getAllGroupExpenses')
         if(userData && userData._id!=undefined && userData._id!=null){
-            axios.get(`http://localhost:5000/getAllGroupExpenses/`+userData._id)
+            axios.get(`/api/getAllGroupExpenses/`+userData._id)
             .then(res => {
                 const data = res.data;
                 console.log(data)
@@ -58,7 +58,7 @@ function Activity() {
     const getAllGroupExpenseDivsion = ()=>{
         console.log('getAllGroupExpenseDivsion')
         if(userData && userData._id!=undefined && userData._id!=null){
-            axios.get(`http://localhost:5000/getAllGroupExpenseDivsion/`+userData._id)
+            axios.get(`/api/getAllGroupExpenseDivsion/`+userData._id)
             .then(res => {
                 const data = res.data;
                 console.log(data)
@@ -83,7 +83,7 @@ function Activity() {
         console.log('getUsersList')
         if(userData && userData.email != undefined && userData._id != null){
             console.log(userData._id)
-            axios.get(`http://localhost:5000/getUsers/`+userData._id)
+            axios.get(`/api/getUsers/`+userData._id)
             .then(res => {
                 const data = res.data;
                 console.log(data)
@@ -104,7 +104,7 @@ function Activity() {
         console.log(userData)
         // console.log('getLoginUser: '+userData._id)
         if(userData && userData._id!=undefined && userData._id!=null){
-            axios.get(`http://localhost:5000/getAllGroups/`+userData._id)
+            axios.get(`/api/getAllGroups/`+userData._id)
             .then(res => {
                 const data = res.data;
                 let groupNameAndIds = [];
@@ -121,10 +121,9 @@ function Activity() {
 
     const settleUpExpenseReq = (grpId,sender,receiver,amount)=>{
         console.log(grpId,sender,receiver,amount)
-        axios.post(`http://localhost:5000/settleUpExpenseReq/`,{'groupId':grpId,'sender':sender,'receiver':receiver,'amount':amount})
+        axios.post(`/api/settleUpExpenseReq/`,{'groupId':grpId,'sender':sender,'receiver':receiver,'amount':amount})
         .then(res => {
             const data = res.data;
-            
             console.log(data)
             getAllGroupExpenses();
             // setGroupAndIds(groupNameAndIds)
@@ -135,7 +134,7 @@ function Activity() {
     
     const receivedPayment = (expenseId,grpId,sender,receiver,amount)=>{
         console.log(grpId,sender,receiver,amount)
-        axios.post(`http://localhost:5000/receivedPayment`,{'expenseId':expenseId,'groupId':grpId,'sender':sender,'receiver':receiver,'amount':amount})
+        axios.post(`/api/receivedPayment`,{'expenseId':expenseId,'groupId':grpId,'sender':sender,'receiver':receiver,'amount':amount})
         .then(res => {
             const data = res.data;
             console.log(data)
@@ -151,7 +150,7 @@ function Activity() {
         console.log('getUsersList')
         if(userData && userData.email != undefined && userData._id != null){
             console.log(userData._id)
-            axios.get(`http://localhost:5000/getAllPayments/`+userData._id)
+            axios.get(`/api/getAllPayments/`+userData._id)
             .then(res => {
                 const data = res.data;
                 console.log(data)
