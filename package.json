@@ -8,8 +8,12 @@
     "npm": "6.14.8"
   },
   "scripts": {
-    "start": "node index.js",
-    "heroku-postbuild": "cd split_app && npm install && npm run build"
+    "build": "cd split_app && npm run build",
+    "install-client": "cd split_app && npm install",
+    "heroku-postbuild": "npm run install-client && npm run build",
+    "server": "node server.js",
+    "develop": "concurrently --kill-others-on-fail \"npm run server\" \"npm run start --prefix client\"",
+    "start": "concurrently --kill-others-on-fail \"npm run server\" \"npm run start --prefix client\""
   },
   "dependencies": {
     "bson": "^4.6.5",
