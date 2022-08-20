@@ -1,0 +1,87 @@
+body, .expense_details{
+    background-color: #20232a;
+    color: white;
+}
+
+.card{
+    background-color: #20232a!important;
+}
+
+.multiSelectContainer{
+    background-color: white!important;
+    color: black;
+}
+
+.nav-link  a{
+    color: white;
+    text-decoration: none;
+}
+
+.nav-link a:hover {
+    color:#00A0C6; 
+    text-decoration:none; 
+    cursor:pointer;  
+}
+
+.group_view_header{
+    height: 5em;
+    background-color: #00113d;
+    background-image: url("https://www.transparenttextures.com/patterns/gplay.png");
+    /* This is mostly intended for prototyping; please download the pattern and re-host for production environments. Thank you! */
+}
+
+.groupBackIcon{
+    position: absolute;
+    margin: -4em 1em;
+    z-index: 100;
+}
+
+.add_expense_sticky_button{
+    position: fixed;
+    bottom: 5em;
+    right: 5em;
+}
+.hr3 {
+  border: 0.5px;
+  height: 0.5px;
+  background-image: linear-gradient(to right, transparent, #CCC, transparent);  
+  opacity: 1;
+}
+.btn{
+    font-size: 0.9em!important;
+}
+
+.icon{
+    cursor: pointer;
+}
+
+.avatar-5{
+    background-color: #141e3d;
+    background-image: url("https://www.transparenttextures.com/patterns/bright-squares.png");
+}    
+
+.avatar-6{
+    background-color: #141e3d;
+    background-image: url("https://www.transparenttextures.com/patterns/checkered-light-emboss.png");
+}
+.avatar-2{
+    background-color: #141e3d;
+    background-image: url("https://www.transparenttextures.com/patterns/cutcube.png");
+}    
+.avatar-3{
+background-color: #3ca64c;
+background-image: url("https://www.transparenttextures.com/patterns/diamond-upholstery.png");
+}
+.avatar-1{
+background-color: #3ca64c;
+background-image: url("https://www.transparenttextures.com/patterns/green-gobbler.png");
+}
+
+.avatar-4{
+background-color: #3ca64c;
+background-image: url("https://www.transparenttextures.com/patterns/flowers.png");
+}
+.avatar-0{
+background-color: #2b85c2;
+background-image: url("https://www.transparenttextures.com/patterns/starring.png");
+}
