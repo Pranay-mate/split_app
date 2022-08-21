@@ -342,11 +342,12 @@ return (
         </Modal>
        </>
        :
-       <>
-       <div className='group_view_header' ></div>
-       <IoArrowBackOutline className="groupBackIcon" onClick={()=>setOpenGroup([])} size="2.5em" />
-       <GroupDashboard group={openedGroup[0]}></GroupDashboard>
-       </>
+       <div>
+        <div className='group_view_header'>
+            <IoArrowBackOutline className="groupBackIcon m-2" onClick={()=>setOpenGroup([])} size="2.5em" />
+        </div>
+        <GroupDashboard group={openedGroup[0]}></GroupDashboard>
+       </div>
         }
         <Button  variant="success" className="add_expense_sticky_button rounded-pill" onClick={()=>openModel()}><MdListAlt size="22" className="mx-1 mb-1" />Add Expense</Button>
     </div>

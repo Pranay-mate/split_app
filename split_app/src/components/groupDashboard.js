@@ -178,7 +178,7 @@ function GroupDashboard(props) {
 
 
 return (
-    <div className="container pb-4 mb-4">
+    <div className="container py-4 my-4">
         <div className='m-4 group_header'>
             <h5>{props.group.group_name}</h5>
             <p>Created by: {props.group.created_by}</p>
