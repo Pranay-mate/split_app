@@ -33,12 +33,12 @@ const uri = "mongodb+srv://Pranay:KEYYs1PXzpmdEspb@cluster0.kx27fbs.mongodb.net/
 
 const port = process.env.PORT || 5000;
 
-// if(process.env.NODE_ENV === 'production'){
-//     app.use(express.static("split_app/build"))
-//     app.get("*",(req,res)=>{
-//         res.sendFile(path.resolve(__dirname,'split_app','build','index.html'))
-//     })
-// }
+if(process.env.NODE_ENV === 'production'){
+    app.use(express.static("split_app/build"))
+    app.get("*",(req,res)=>{
+        res.sendFile(path.resolve(__dirname,'split_app','build','index.html'))
+    })
+}
 
 mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
 .then(() => app.listen(port, () => console.log(`Server Running on Port: http://localhost:${port}`)))
