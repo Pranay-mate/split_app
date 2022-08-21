@@ -24,19 +24,19 @@ function Menu() {
       <>
         <Navbar bg="dark" variant="dark" fixed="bottom" className='border-top' >
             <Nav className="mx-auto p-0">
-              <Nav.Link className="mx-3" activeStyle={{ color: 'red' }}>
+              <Nav.Link className="mx-2" activeStyle={{ color: 'red' }}>
                   <Link to="/" exact id="GroupsLink" >Groups</Link>
               </Nav.Link>
-              <Nav.Link className="mx-3">
+              <Nav.Link className="mx-2">
                   <Link exact to="/activity">Activity</Link>
               </Nav.Link>
-              <Nav.Link className="mx-3">
+              <Nav.Link className="mx-2">
                   <Link exact to="/addGroup"><IoAddOutline size={25} /></Link>
               </Nav.Link>
-              <Nav.Link  className="mx-3">
-                  <Link exact to="/payments">Payments</Link>
+              <Nav.Link  className="mx-2">
+                  <Link exact to="/payments">Payment</Link>
               </Nav.Link>
-              <Nav.Link className="mx-3">
+              <Nav.Link className="mx-2">
                   <Link exact to="/account">Account</Link>
               </Nav.Link>
             </Nav>
