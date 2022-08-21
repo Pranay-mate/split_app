@@ -39,7 +39,7 @@ body, .expense_details{
 .add_expense_sticky_button{
     position: fixed;
     bottom: 5em;
-    right: 5em;
+    right: 2em;
 }
 .hr3 {
   border: 0.5px;

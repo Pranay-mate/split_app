@@ -51,7 +51,7 @@ const handleFailure = (result) => {
 };
 
   const handleLogin = async (googleData) => {
-    const res = await fetch('/api//login', {
+    const res = await fetch('/api/login', {
       method: 'POST',
       body: JSON.stringify({
         token: googleData.tokenId,

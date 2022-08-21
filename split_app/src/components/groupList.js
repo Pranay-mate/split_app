@@ -19,6 +19,7 @@ function GroupsList() {
     const [allgroups, setAllGroups] = useState([]);
     const [openedGroup, setOpenGroup] = useState([]);
 
+    const [selectedGroup, setSelectedGroup] = useState([]);
     const [selectedValue, setSelectedValue] = useState("");
     const [isOpen, setIsOpen] = useState(false);
     const [grpId, setGrpId] = useState("");
@@ -161,13 +162,12 @@ function GroupsList() {
             });
     }
 
-    const openModel = (grpId) => {
-        setGrpId(grpId)
+    const openModel = () => {
         setIsOpen(true)
     }
 
-    const saveExpense= (grpId)=>{
-        console.log('grpId: '+grpId)
+    const saveExpense= ()=>{
+        console.log('grpId: '+selectedGroup)
         console.log('selectedExpenseCat: '+selectedExpenseCat)
         console.log(selectedExpenseCat)
         console.log('selectPaidUser: '+selectPaidUser)
@@ -177,7 +177,7 @@ function GroupsList() {
         console.log('ExpenseDescri: '+ExpenseDescri)
         console.log('ExpenseAmount: '+ExpenseAmount)
         let userData = JSON.parse(localStorage.getItem('loginData'));
-        let expenseData = {groupId: grpId,
+        let expenseData = {groupId: selectedGroup,
             expenseCategory: selectedExpenseCat,
             expenseDescription: ExpenseDescri,
             expenseAmount: ExpenseAmount,
@@ -186,7 +186,7 @@ function GroupsList() {
             per_person:selectSplitIn.length,
             created_by: userData._id
         }
-        if(userData && grpId && grpId!=null){
+        if(userData && selectedGroup.length>0){
             axios.post(`/api/addGroupExpense`,expenseData)
             .then(res => {
                 const data = res.data;
@@ -195,6 +195,8 @@ function GroupsList() {
             }).catch(e => {
                 console.log("e");
             });
+        }else{
+            console.log('group not selected')
         }
         // setIsOpen(false)
     }
@@ -224,7 +226,10 @@ function GroupsList() {
         console.log(selectedList)
     }
 
-
+    const onSelectGroup = (selectedList, selectedItem)=>{
+        setSelectedGroup(selectedItem._id);
+        console.log(selectedItem._id)
+    }
         
 return (
     <div className="pb-4">
@@ -266,7 +271,7 @@ return (
                                 <Row><p>{group.group_name}</p></Row>
                             </Col>
                             <Col xs="3" className="text-center my-auto">
-                                <Button  variant="success" className="rounded-pill" onClick={()=>openModel(group._id)}><MdListAlt size="22" className="mx-1 mb-1" />Add Expense</Button>
+                                {/* <Button  variant="success" className="rounded-pill" onClick={()=>openModel()}><MdListAlt size="22" className="mb-1 mr-1" />Add Expense</Button> */}
                             </Col>
                         </Row>
                     </Card.Body>
@@ -281,6 +286,17 @@ return (
                 <Form>
                     <Row className='mb-3'>
                         <Multiselect
+                        options={allgroups} // Options to display in the dropdown
+                        selectedValues={selectedValue} // Preselected value to persist in dropdown
+                        onSelect={onSelectGroup} // Function will trigger on select event
+                        onRemove={onSelectGroup} // Function will trigger on remove event
+                        displayValue="group_name"
+                        placeholder='Select group'
+                        singleSelect
+                        />
+                    </Row>
+                    <Row className='mb-3'>
+                        <Multiselect
                         options={expenseCategories} // Options to display in the dropdown
                         selectedValues={selectedValue} // Preselected value to persist in dropdown
                         onSelect={onSelectExpenseCat} // Function will trigger on select event
@@ -290,14 +306,14 @@ return (
                         singleSelect
                         />
                     </Row>
-                    <Row className='mb-3'>
+                    <Row className='mb-3 mx-1'>
                         <Form.Control placeholder="Enter a Description" onChange={(e)=>setExpenseDescri(e.target.value)} />
                     </Row>
-                    <Row className='mb-3'>
+                    <Row className='mb-3  mx-1'>
                         <Form.Control placeholder="Amount in ₹" onChange={(e)=>setExpenseAmount(e.target.value)} />
                     </Row>
                     <Row>Paid by</Row>
-                    <Row>
+                    <Row  className='mb-3'>
                         <Multiselect
                         options={userLists} // Options to display in the dropdown
                         selectedValues={selectedValue} // Preselected value to persist in dropdown
@@ -321,7 +337,7 @@ return (
             </Modal.Body>
             <Modal.Footer>
             <Button onClick={()=>hideModal()} >Cancel</Button>
-            <Button onClick={(e)=>saveExpense(grpId)} variant="danger">Save</Button>
+            <Button onClick={(e)=>saveExpense()} variant="danger">Save</Button>
             </Modal.Footer>
         </Modal>
        </>
@@ -332,6 +348,7 @@ return (
        <GroupDashboard group={openedGroup[0]}></GroupDashboard>
        </>
         }
+        <Button  variant="success" className="add_expense_sticky_button rounded-pill" onClick={()=>openModel()}><MdListAlt size="22" className="mx-1 mb-1" />Add Expense</Button>
     </div>
   );
 }

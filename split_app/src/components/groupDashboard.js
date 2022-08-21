@@ -138,6 +138,8 @@ function GroupDashboard(props) {
             }).catch(e => {
                 console.log("e");
             });
+        }else{
+            console.log('check fields')
         }
         // setIsOpen(false)
     }
@@ -229,14 +231,14 @@ return (
                         singleSelect
                         />
                     </Row>
-                    <Row className='mb-3'>
+                    <Row className='mb-3 mx-1'>
                         <Form.Control placeholder="Enter a Description" onChange={(e)=>setExpenseDescri(e.target.value)} />
                     </Row>
-                    <Row className='mb-3'>
+                    <Row className='mb-3  mx-1'>
                         <Form.Control placeholder="Amount in ₹" onChange={(e)=>setExpenseAmount(e.target.value)} />
                     </Row>
                     <Row>Paid by</Row>
-                    <Row>
+                    <Row  className='mb-3'>
                         <Multiselect
                         options={userLists} // Options to display in the dropdown
                         selectedValues={selectedValue} // Preselected value to persist in dropdown
