@@ -16,6 +16,7 @@ import { MdListAlt, MdOutlineCancel } from 'react-icons/md';
 import { BiCheckCircle } from 'react-icons/bi'
 import Accordion from 'react-bootstrap/Accordion';
 import moment from 'moment'
+import Image from 'react-bootstrap/Image'
 
 function Activity() {
     const [allgroups, setAllGroups] = useState([]);
@@ -38,6 +39,8 @@ function Activity() {
     const [GroupAndIds, setGroupAndIds] = useState([]);
     const [groupExpenseDivision, setAllGroupExpenseDivsion] = useState([]);
     const [allPayments, setAllPayments] = useState([]);
+    const [activeAccordion, setActiveAccordion] = useState(0);
+    const [UserAndPic, setUserAndPics] = useState([]);
 
     let userData = JSON.parse(localStorage.getItem('loginData'));
 
@@ -88,10 +91,14 @@ function Activity() {
                 const data = res.data;
                 console.log(data)
                 let userAndId = [];
+                let userAndPic = [];
                 data.map((user)=>{
                     userAndId[user._id] = user.name;
+                    userAndPic[user._id] = user.picture;
+
                 })
                 setUserAndIds(userAndId)
+                setUserAndPics(userAndPic)
             }).catch(e => {
                 console.log("e");
             });
@@ -160,48 +167,53 @@ function Activity() {
             });
         }
     }
-return (
-    <div className="container ">
-        <Accordion defaultActiveKey="0" flush className='my-4'>
+    const changeActiveAccordion = (id) =>{
+        if(activeAccordion == id){
+            setActiveAccordion('')
+        }else{
+            setActiveAccordion(id)
+        }
+    }
+
+    return (
+    <div className="container">
+        <Accordion defaultActiveKey="0"  activeKey={activeAccordion} flush className='my-4'>
         {allGroupExpenses.length>0?allGroupExpenses.map((groupExpense, idx) => (
-            <Accordion.Item eventKey={idx}>
+            <Accordion.Item eventKey={idx} onClick={()=>changeActiveAccordion(idx)}>
             <Accordion.Header>
+                
                 {GroupAndIds[groupExpense[0].groupId]}
                 
             </Accordion.Header>
             <Accordion.Body>
-                <div>
-                
                 {groupExpenseDivision[groupExpense[0].groupId] !== undefined?groupExpenseDivision[groupExpense[0].groupId].map((expenseData,i)=>(
-                    <>
                     <Row className="my-4 mx-2">
                         <Col xs={2} className="my-auto">
-                            <div className={'avatar-'+i} style={{"width":"40px","height":"40px", borderRadius:"2em"}}></div>
+                            {/* <div className={'avatar-'+i} style={{"width":"40px","height":"40px", borderRadius:"2em"}}></div> */}
+                            <Image src={UserAndPic[expenseData.sender]} roundedCircle alt="Picture" style={{"width":"40px","height":"40px"}} ></Image>
                         </Col>
                         <Col xs={8} className="my-auto">
-                            
-                        {UserAndId[expenseData.sender]} owes ₹{parseInt(expenseData.amount).toFixed(2)} to {UserAndId[expenseData.receiver]}
+                            {UserAndId[expenseData.sender]} owes ₹{parseInt(expenseData.amount).toFixed(2)} to {UserAndId[expenseData.receiver]}
                         </Col>
                         <Col xs={2} style={{"textAlign":"end"}} className="my-auto">
-                        {expenseData.status==='Pay' && expenseData.sender === userData._id?
-                        <Button variant="success" onClick={()=>settleUpExpenseReq(groupExpense[0].groupId,expenseData.sender,expenseData.receiver,parseInt(expenseData.amount))}>Paid</Button>
-                        :expenseData.status==='Pay' && expenseData.receiver === userData._id?
-                        <Button variant="success">Not Received</Button>
-                        :expenseData.status==='Pending' && expenseData.receiver === userData._id?
-                        <Button variant="success" onClick={()=>receivedPayment(expenseData.id,groupExpense[0].groupId,expenseData.sender,expenseData.receiver,parseInt(expenseData.amount))}>Confirm payment</Button>
-                        :expenseData.status==='Pending' ?
-                        <Button style={{'cursor':"auto"}} variant="outline-success">Pending</Button>
-                        :expenseData.status==='Settled'?
-                        <Button style={{'cursor':"auto"}} variant="outline-success">Settled</Button>
-                        :<Button style={{'cursor':"auto"}} variant="outline-success">Not involved</Button>
-                        }
+                            {expenseData.status==='Pay' && expenseData.sender === userData._id?
+                            <Button variant="success" onClick={()=>settleUpExpenseReq(groupExpense[0].groupId,expenseData.sender,expenseData.receiver,parseInt(expenseData.amount))}>Paid</Button>
+                            :expenseData.status==='Pay' && expenseData.receiver === userData._id?
+                            <Button variant="success">Not Received</Button>
+                            :expenseData.status==='Pending' && expenseData.receiver === userData._id?
+                            <Button variant="success" onClick={()=>receivedPayment(expenseData.id,groupExpense[0].groupId,expenseData.sender,expenseData.receiver,parseInt(expenseData.amount))}>Confirm payment</Button>
+                            :expenseData.status==='Pending' ?
+                            <Button style={{'cursor':"auto"}} variant="outline-success">Pending</Button>
+                            :expenseData.status==='Settled'?
+                            <Button style={{'cursor':"auto"}} variant="outline-success">Settled</Button>
+                            :<Button style={{'cursor':"auto"}} variant="outline-success">Not involved</Button>
+                            }
                         </Col>
                     </Row>
-                    </>
                 ))
                 
                 :
-                <>
+                <div>
                 <div className="my-2 text-center mx-4"><Button variant="outline-success">All Settled</Button></div>
                     {allPayments[groupExpense[0].groupId] !== undefined?allPayments[groupExpense[0].groupId].map((payment,i)=>(
                         <Row className="my-4 mx-2">
@@ -216,7 +228,7 @@ return (
                             </Col>
                         </Row>
                     )):null}
-                </>
+                </div>
                 }
                 <p className='hr3'></p>
                 <div>
@@ -245,7 +257,6 @@ return (
                         </Col>
                     </Row>
                 ))}
-                </div>
                 </div>
             </Accordion.Body>
             </Accordion.Item>

@@ -16,6 +16,7 @@ import { MdListAlt, MdOutlineCancel } from 'react-icons/md';
 import { BiCheckCircle } from 'react-icons/bi'
 import Accordion from 'react-bootstrap/Accordion';
 import moment from 'moment'
+import Image from 'react-bootstrap/Image'
 
 function Payments() {
     const [allgroups, setAllGroups] = useState([]);
@@ -35,10 +36,12 @@ function Payments() {
     const [groupsRequests, setGroupsRequests] = useState([]);
     const [allGroupExpenses, setAllGroupExpenses] = useState([]);
     const [UserAndId, setUserAndIds] = useState([]);
+    const [UserAndPic, setUserAndPics] = useState([]);
     const [GroupAndIds, setGroupAndIds] = useState([]);
     const [groupExpenseDivision, setAllGroupExpenseDivsion] = useState([]);
     const [allPayments, setAllPayments] = useState([]);
     let userData = JSON.parse(localStorage.getItem('loginData'));
+    const [activeAccordion, setActiveAccordion] = useState(0);
 
     const getAllGroupExpenses = ()=>{
         console.log('getAllGroupExpenses')
@@ -87,10 +90,14 @@ function Payments() {
                 const data = res.data;
                 console.log(data)
                 let userAndId = [];
+                let userAndPic = [];
                 data.map((user)=>{
                     userAndId[user._id] = user.name;
+                    userAndPic[user._id] = user.picture;
+
                 })
                 setUserAndIds(userAndId)
+                setUserAndPics(userAndPic)
             }).catch(e => {
                 console.log("e");
             });
@@ -161,11 +168,20 @@ function Payments() {
         });
     }
 
+
+    const changeActiveAccordion = (id) =>{
+        if(activeAccordion == id){
+            setActiveAccordion('')
+        }else{
+            setActiveAccordion(id)
+        }
+    }
+
 return (
     <div className="container ">
-        <Accordion defaultActiveKey="0" flush className='my-4'>
+        <Accordion defaultActiveKey="0"  activeKey={activeAccordion} flush className='my-4'>
         {allGroupExpenses.length>0?allGroupExpenses.map((groupExpense, idx) => (
-            <Accordion.Item eventKey={idx}>
+            <Accordion.Item eventKey={idx} onClick={()=>changeActiveAccordion(idx)}>
             <Accordion.Header>
                 {GroupAndIds[groupExpense[0].groupId]}
                 
@@ -175,7 +191,8 @@ return (
                 {allPayments[groupExpense[0].groupId] !== undefined?allPayments[groupExpense[0].groupId].map((payment,i)=>(
                         <Row className="my-4 mx-2">
                             <Col xs={2} className="my-auto">
-                                <div className={'avatar-'+i} style={{"width":"40px","height":"40px", borderRadius:"2em"}}></div>
+                                {/* <div className={'avatar-'+i} style={{"width":"40px","height":"40px", borderRadius:"2em"}}></div> */}
+                                <Image src={UserAndPic[payment.userId]} roundedCircle alt="Picture" style={{"width":"40px","height":"40px"}} ></Image>
                             </Col>
                             <Col xs={8} className="my-auto">
                                 {UserAndId[payment.userId]} paid ₹{payment.amount} to {UserAndId[payment.paid_to]}  

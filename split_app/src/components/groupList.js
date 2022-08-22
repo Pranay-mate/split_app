@@ -14,14 +14,18 @@ import GroupDashboard from './groupDashboard';
 import { IoArrowBackOutline } from 'react-icons/io5';
 import { MdListAlt, MdOutlineCancel } from 'react-icons/md';
 import { BiCheckCircle } from 'react-icons/bi'
+import {AiOutlineUsergroupAdd} from 'react-icons/ai'
 
 function GroupsList() {
     const [allgroups, setAllGroups] = useState([]);
     const [openedGroup, setOpenGroup] = useState([]);
-
+    
+    const [options, setOptions] = useState([]);
     const [selectedGroup, setSelectedGroup] = useState([]);
     const [selectedValue, setSelectedValue] = useState("");
+    const [selectedGroupValue, setSelectedGroupValue] = useState("");
     const [isOpen, setIsOpen] = useState(false);
+    const [isOpenGroupModal, setGroupModalOpen] = useState(false);
     const [grpId, setGrpId] = useState("");
     const [expenseCategories, setExpenseCategories] = useState([]);
     const [userLists, setUserList] = useState([]);
@@ -32,6 +36,16 @@ function GroupsList() {
     const [ExpenseDescri, setExpenseDescri] = useState("");
     const [ExpenseAmount, setExpenseAmount] = useState("");
     const [groupsRequests, setGroupsRequests] = useState([]);
+
+
+    const [createGroup, setCreateGroup] = useState(false);
+    const [selectedList, setSelectedList] = useState([]);
+    const [groupName, setGroupName] = useState('');
+
+    const [groupExpenseDivision, setAllGroupExpenseDivsion] = useState([]);
+    const [UserAndId, setUserAndIds] = useState([]);
+
+
     let userData = JSON.parse(localStorage.getItem('loginData'));
 
     const getRequestedGroup = () => {
@@ -128,6 +142,7 @@ function GroupsList() {
         getUsersList()
         getRequestedGroup();
         getAllGroupExpenses();
+        getAllGroupExpenseDivsion();
     }, []);
 
     const getUsersList = () => {
@@ -139,6 +154,13 @@ function GroupsList() {
             .then(res => {
                 const data = res.data;
                 console.log(data)
+                let userAndId = [];
+                data.map((user)=>{
+                    userAndId[user._id] = user.name;
+                })
+                setUserAndIds(userAndId)
+                let grpCreationData = data.filter((user)=> user._id != userData._id)
+                setOptions(grpCreationData)
                 let loginUserData = data.filter((user)=> user._id == userData._id)
                 console.log(loginUserData)
                 setSelectPaidUser(userData._id)
@@ -200,6 +222,35 @@ function GroupsList() {
         }
         // setIsOpen(false)
     }
+    
+    const getAllGroupExpenseDivsion = ()=>{
+        console.log('getAllGroupExpenseDivsion')
+        if(userData && userData._id!=undefined && userData._id!=null){
+            axios.get(`/api/getAllGroupExpenseDivsion/`+userData._id)
+            .then(res => {
+                const data = res.data;
+                console.log(data)
+                
+                let UserExpense = {};
+                for (let [grpId, arrData] of Object.entries(data)) {
+                    console.log(`${grpId}: ${arrData}`);
+                    let arr = [{"lent":0},{"borrowed":0}]
+                    arrData.forEach(element => {
+                        if(element.sender== userData._id){
+                            arr[1].borrowed+= element.amount
+                        }else if(element.receiver == userData._id){
+                            arr[0].lent+= element.amount
+                        }
+                    });
+                    UserExpense[grpId] = arr
+                }
+                console.log(UserExpense)
+                setAllGroupExpenseDivsion(UserExpense)
+            }).catch(e => {
+                console.log("e");
+            });
+        }
+    }
 
     const showModal = (id) => {
         setIsOpen(true);
@@ -208,6 +259,15 @@ function GroupsList() {
       
       const hideModal = () => {
         setIsOpen(false);
+      };
+
+      const showGroupModal = () => {
+        setGroupModalOpen(true);
+        console.log('openGroupModel ')
+      };
+
+      const hideGroupModal = () => {
+        setGroupModalOpen(false);
       };
 
     
@@ -230,7 +290,33 @@ function GroupsList() {
         setSelectedGroup(selectedItem._id);
         console.log(selectedItem._id)
     }
-        
+    
+    const addGroup = () => {
+        console.log('restrictttttttttted')
+        let userData = JSON.parse(localStorage.getItem('loginData'));
+        if(userData && userData.email != undefined && userData.email != null){
+            axios.post(`/api/addGroup`,{'group_name':groupName,'created_by':userData.email,'requests':selectedList})
+            .then(res => {
+                const data = res.data;
+                console.log(data)
+                setGroupModalOpen(false);
+                getAllGroups()
+            }).catch(e => {
+                console.log("e");
+            });
+        }
+    }
+
+    const onSelect = (selectedList, selectedItem)=> {
+        setSelectedList(selectedList)
+        console.log(selectedList)
+    }
+    
+    const onRemove = (selectedList, removedItem)=> {
+        console.log(selectedList)
+        setSelectedList(selectedList)
+    }
+
 return (
     <div className="pb-4">
         {groupsRequests.length>0&&openedGroup.length===0?groupsRequests.map((group, idx) => (
@@ -240,11 +326,10 @@ return (
                         <Row>
                             <Col xs="3" className="my-auto">
                             {/* <i class={cardData.Campaign_icon} style={{fontSize:'4em'}}></i> */}
-                            {group.group_name}
+                                <div className={'avatar-'+idx} style={{"width":"40px","height":"40px", borderRadius:"2em"}}></div>
                             </Col>
                             <Col xs className="my-auto">
                                 <Row><h6>{group.group_name}</h6></Row>
-                                <Row><p>{group.group_name}</p></Row>
                             </Col>
                             <Col xs="3" className="text-center my-auto">
                                 <BiCheckCircle className='mx-4 icon' color='green' onClick={()=>acceptGrpReq(group._id)} size="40" />
@@ -256,28 +341,48 @@ return (
             </Row>
         )): null}
         {openedGroup.length===0?
-        <>
+        <div className="m-4 pb-4">
         {allgroups.length>0?allgroups.map((group, idx) => (
-            <Row xs={1} className="m-4">
-                <Card className='' id={group._id}  >
+            <Row xs={1} className="my-2">
+                <Card className='' id={group._id}  onClick={(e)=>openGroup(group._id)}>
                     <Card.Body>
                         <Row>
-                            <Col xs="3" className="my-auto" onClick={(e)=>openGroup(group._id)}>
+                            <Col xs="2" className="my-auto">
                             {/* <i class={cardData.Campaign_icon} style={{fontSize:'4em'}}></i> */}
-                            {group.group_name}
+                                <div className={'avatar-'+idx} style={{"width":"40px","height":"40px", borderRadius:"2em"}}></div>
                             </Col>
-                            <Col xs className="my-auto" onClick={(e)=>openGroup(group._id)}>
+                            <Col xs="5" className="my-auto">
                                 <Row><h6>{group.group_name}</h6></Row>
-                                <Row><p>{group.group_name}</p></Row>
                             </Col>
-                            <Col xs="3" className="text-center my-auto">
-                                {/* <Button  variant="success" className="rounded-pill" onClick={()=>openModel()}><MdListAlt size="22" className="mb-1 mr-1" />Add Expense</Button> */}
+                            <Col xs="5" className="my-auto" style={{"textAlign":"end"}}>
+                                {groupExpenseDivision[group._id] !== undefined?groupExpenseDivision[group._id].map((expenseData,i)=>(
+                                    <>
+                                    {expenseData.lent!=undefined && expenseData.lent>0
+                                    ?<><p className='mb-0'>you lent</p>
+                                        <p>₹{parseInt(expenseData.lent).toFixed(2)}</p>
+                                    </>
+                                    :null}
+
+                                    {expenseData.borrowed!=undefined && expenseData.borrowed>0?
+                                    <><p className='mb-0'>you borrowed </p>
+                                    <p>₹{parseInt(expenseData.borrowed).toFixed(2)}</p>
+                                    </>
+                                    :null
+                                    }
+                                    </>
+                                ))
+                                :
+                                <p className=''>Settled up</p>
+                                }
                             </Col>
                         </Row>
                     </Card.Body>
                 </Card>
             </Row>  
-        )): "Create Group"}
+        )): null}
+        <div className='text-center'>
+            <Button variant='outline-secondary' onClick={()=>setGroupModalOpen(true)}><AiOutlineUsergroupAdd size={22} className='mb-1' />Create New Group</Button>
+        </div>
         <Modal show={isOpen} onHide={hideModal}>
             <Modal.Header>
             <Modal.Title>Add Expense</Modal.Title>
@@ -340,7 +445,35 @@ return (
             <Button onClick={(e)=>saveExpense()} variant="danger">Save</Button>
             </Modal.Footer>
         </Modal>
-       </>
+        {/* Add Group Modal */}
+        <Modal show={isOpenGroupModal} onHide={hideGroupModal}>
+            <Modal.Header>
+            <Modal.Title>Create New Group</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <Form>
+                    <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                        <Form.Control type="text" placeholder="Group Name" id="group-name" onChange={(e)=>setGroupName(e.target.value)} />
+                    </Form.Group>
+                    <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                        <Multiselect
+                        options={options} // Options to display in the dropdown
+                        selectedValues={selectedGroupValue} // Preselected value to persist in dropdown
+                        onSelect={onSelect} // Function will trigger on select event
+                        onRemove={onRemove} // Function will trigger on remove event
+                        displayValue={"email"} // Property name to display in the dropdown options
+                        placeholder="Select Members"
+                        />
+                    </Form.Group>
+                </Form>
+            </Modal.Body>
+            <Modal.Footer>
+                <Button onClick={()=>hideGroupModal()} >Cancel</Button>
+                <Button type='submit' onClick={()=>addGroup()}>Submit</Button>
+            </Modal.Footer>
+        </Modal>
+
+       </div>
        :
        <div>
         <div className='group_view_header'>

@@ -30,9 +30,9 @@ function Menu() {
               <Nav.Link className="mx-2">
                   <Link exact to="/activity">Activity</Link>
               </Nav.Link>
-              <Nav.Link className="mx-2">
+              {/* <Nav.Link className="mx-2">
                   <Link exact to="/addGroup"><IoAddOutline size={25} /></Link>
-              </Nav.Link>
+              </Nav.Link> */}
               <Nav.Link  className="mx-2">
                   <Link exact to="/payments">Payment</Link>
               </Nav.Link>
