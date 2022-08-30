@@ -5,11 +5,10 @@ export default function Loader() {
         <div className='text-center'>
             <Dna
             visible={true}
-            height="120"
-            width="120"
+            height="100"
+            width="100"
             ariaLabel="dna-loading"
-            wrapperStyle={{}}
-            wrapperClass="dna-wrapper"
+            wrapperClass="dna-wrapper mx-auto my-4"
             />
         </div>
     );
