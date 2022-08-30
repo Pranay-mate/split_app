@@ -19,7 +19,7 @@ import moment from 'moment'
 import Image from 'react-bootstrap/Image'
 import { faHome } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-
+import Loader from './loader'
 function Activity() {
     const [allgroups, setAllGroups] = useState([]);
     const [openedGroup, setOpenGroup] = useState([]);
@@ -44,6 +44,7 @@ function Activity() {
     const [activeAccordion, setActiveAccordion] = useState(0);
     const [UserAndPic, setUserAndPics] = useState([]);
     const [expenseCategoryIdAndIcon, setExpenseCategoryIdAndIcon] = useState([]);
+    const [displayLoader, setDisplayLoader] = useState(true);
 
     let userData = JSON.parse(localStorage.getItem('loginData'));
 
@@ -81,6 +82,7 @@ function Activity() {
         getUsersList();
         getAllGroups()
         getExpenseCategory()
+        setTimeout(()=>{setDisplayLoader(false)},2000)
     }, []);
 
     const resetPage= ()=>{
@@ -200,6 +202,7 @@ function Activity() {
 
     return (
     <div className="container">
+        {!displayLoader?
         <Accordion defaultActiveKey="0"  activeKey={activeAccordion} flush className='my-4'>
         {allGroupExpenses.length>0?allGroupExpenses.map((groupExpense, idx) => (
             <Accordion.Item eventKey={idx} onClick={()=>changeActiveAccordion(idx)}>
@@ -286,6 +289,7 @@ function Activity() {
             </Accordion.Item>
         )): null}
         </Accordion>
+        :<Loader></Loader>}
     </div>
   );
 }

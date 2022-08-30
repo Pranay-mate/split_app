@@ -18,6 +18,7 @@ import Accordion from 'react-bootstrap/Accordion';
 import moment from 'moment'
 import Image from 'react-bootstrap/Image'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Loader from './loader'
 
 function Payments() {
     const [allgroups, setAllGroups] = useState([]);
@@ -44,6 +45,7 @@ function Payments() {
     let userData = JSON.parse(localStorage.getItem('loginData'));
     const [activeAccordion, setActiveAccordion] = useState(0);
     const [expenseCategoryIdAndIcon, setExpenseCategoryIdAndIcon] = useState([]);
+    const [displayLoader, setDisplayLoader] = useState(true);
 
     const getAllGroupExpenses = ()=>{
         console.log('getAllGroupExpenses')
@@ -81,6 +83,7 @@ function Payments() {
         getAllGroupExpenseDivsion()
         getAllPayments()
         getExpenseCategory()
+        setTimeout(()=>{setDisplayLoader(false)},2000)
     }, []);
 
 
@@ -198,6 +201,7 @@ function Payments() {
 
 return (
     <div className="container ">
+        {!displayLoader?
         <Accordion defaultActiveKey="0"  activeKey={activeAccordion} flush className='my-4'>
         {allGroupExpenses.length>0?allGroupExpenses.map((groupExpense, idx) => (
             <Accordion.Item eventKey={idx} onClick={()=>changeActiveAccordion(idx)}>
@@ -255,6 +259,7 @@ return (
             </Accordion.Item>
         )): null}
         </Accordion>
+        :<Loader></Loader>}
     </div>
   );
 }

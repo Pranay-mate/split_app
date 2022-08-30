@@ -13,6 +13,7 @@ import Button from 'react-bootstrap/Button'
 import { MdListAlt } from 'react-icons/md';
 import moment from 'moment'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Loader from './loader';
 
 
 function GroupDashboard(props) {
@@ -33,6 +34,7 @@ function GroupDashboard(props) {
     const [GroupExpenses, setGroupExpenses] = useState("");
     const [UserAndId, setUserAndIds] = useState([]);
     const [expenseCategoryIdAndIcon, setExpenseCategoryIdAndIcon] = useState([]);
+    const [displayLoader, setDisplayLoader] = useState(true);
     let userData = JSON.parse(localStorage.getItem('loginData'));
 
    
@@ -165,6 +167,7 @@ function GroupDashboard(props) {
         getExpenseCategory()
         getUsersList()
         getGroupExpenses(props.group._id)
+        setTimeout(()=>{setDisplayLoader(false)},2000)
     }, []);
 
     const getExpenseCategory = ()=>{
@@ -185,6 +188,8 @@ function GroupDashboard(props) {
 
 return (
     <div className="container py-4 my-4">
+        {!displayLoader?
+        <>
         <div className='m-4 group_header'>
             <h5>{props.group.group_name}</h5>
             <p>Created by: {props.group.created_by}</p>
@@ -272,6 +277,8 @@ return (
             <Button onClick={(e)=>saveExpense(grpId)} variant="danger">Save</Button>
             </Modal.Footer>
         </Modal>
+        </>
+        :<Loader></Loader>}
     </div>
   );
 }

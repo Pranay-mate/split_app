@@ -15,6 +15,7 @@ import { IoArrowBackOutline } from 'react-icons/io5';
 import { MdListAlt, MdOutlineCancel } from 'react-icons/md';
 import { BiCheckCircle } from 'react-icons/bi'
 import {AiOutlineUsergroupAdd} from 'react-icons/ai'
+import Loader from './loader'
 
 function GroupsList() {
     const [allgroups, setAllGroups] = useState([]);
@@ -44,6 +45,7 @@ function GroupsList() {
 
     const [groupExpenseDivision, setAllGroupExpenseDivsion] = useState([]);
     const [UserAndId, setUserAndIds] = useState([]);
+    const [displayLoader, setDisplayLoader] = useState(true);
 
 
     let userData = JSON.parse(localStorage.getItem('loginData'));
@@ -143,6 +145,7 @@ function GroupsList() {
         getRequestedGroup();
         getAllGroupExpenses();
         getAllGroupExpenseDivsion();
+        setTimeout(()=>{setDisplayLoader(false)},2000)
     }, []);
 
     const getUsersList = () => {
@@ -319,6 +322,8 @@ function GroupsList() {
 
 return (
     <div className="pb-4">
+        {!displayLoader?
+        <>
         {groupsRequests.length>0&&openedGroup.length===0?groupsRequests.map((group, idx) => (
             <Row xs={1} className="m-4">
                 <Card className='' id={group._id} style={{border:"1px solid white"}} >
@@ -483,6 +488,8 @@ return (
        </div>
         }
         <Button  variant="success" className="add_expense_sticky_button rounded-pill" onClick={()=>openModel()}><MdListAlt size="22" className="mx-1 mb-1" />Add Expense</Button>
+        </>
+        :<Loader></Loader>}
     </div>
   );
 }
