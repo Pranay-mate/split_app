@@ -189,8 +189,8 @@ function Payments() {
 
 
     const changeActiveAccordion = (id) =>{
-        if(activeAccordion == id){
-            setActiveAccordion('')
+        if(activeAccordion === id){
+            setActiveAccordion(-1)
         }else{
             setActiveAccordion(id)
         }
