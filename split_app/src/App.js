@@ -19,14 +19,8 @@ import Button from 'react-bootstrap/Button'
 import Card from 'react-bootstrap/Card'
 import Activity from './components/activity'
 import Payments from './components/payments';
-// This site has 3 pages, all of which are rendered
-// dynamically in the browser (not server rendered).
-//
-// Although the page does not ever refresh, notice how
-// React Router keeps the URL up to date as you navigate
-// through the site. This preserves the browser history,
-// making sure things like the back button and bookmarks
-// work properly.
+import Image from 'react-bootstrap/Image'
+
 
 export default function App() {
   const [loginData, setLoginData] = useState(
@@ -108,6 +102,10 @@ const handleFailure = (result) => {
               <>
                 <div className='container'>
                   <Card className='text-center mt-4'>
+                    <Row className='mx-auto'>
+                      <Image src={loginData.picture} roundedCircle alt="Picture" style={{"width":"150px","height":"125px"}} ></Image>
+                    </Row>
+                    <h3>{loginData.name}</h3>
                     <h3>{loginData.email}</h3>
                     <Button className='btn-sm mx-auto' onClick={handleLogout}>Logout</Button>
                   </Card>
