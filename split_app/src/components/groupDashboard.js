@@ -12,6 +12,7 @@ import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button'
 import { MdListAlt } from 'react-icons/md';
 import moment from 'moment'
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 
 function GroupDashboard(props) {
@@ -31,6 +32,7 @@ function GroupDashboard(props) {
     const [ExpenseAmount, setExpenseAmount] = useState("");
     const [GroupExpenses, setGroupExpenses] = useState("");
     const [UserAndId, setUserAndIds] = useState([]);
+    const [expenseCategoryIdAndIcon, setExpenseCategoryIdAndIcon] = useState([]);
     let userData = JSON.parse(localStorage.getItem('loginData'));
 
    
@@ -76,18 +78,6 @@ function GroupDashboard(props) {
         }
     }
 
-    const getExpenseCategory = ()=>{
-        console.log('getExpenseCategory')
-        axios.get(`/api/getExpenseCategory`)
-            .then(res => {
-                const data = res.data;
-                console.log(data)
-                setExpenseCategories(data)
-            }).catch(e => {
-                console.log("e");
-            });
-    }
-
     const getGroupExpenses = (grpId)=>{
         console.log('getGroupExpenses')
         axios.get(`/api/getGroupExpenses/`+grpId)
@@ -104,6 +94,7 @@ function GroupDashboard(props) {
     }
 
     const openModel = (grpId) => {
+        console.log(grpId)
         setGrpId(grpId)
         setIsOpen(true)
     }
@@ -176,6 +167,21 @@ function GroupDashboard(props) {
         getGroupExpenses(props.group._id)
     }, []);
 
+    const getExpenseCategory = ()=>{
+        console.log('getExpenseCategory')
+        axios.get(`/api/getExpenseCategory`)
+            .then(res => {
+                const data = res.data;
+                console.log(data)
+                let CategoryIdAndIcon = [];
+                data.map((category)=>{
+                    CategoryIdAndIcon[category._id] = category.icon;
+                })
+                setExpenseCategoryIdAndIcon(CategoryIdAndIcon)
+            }).catch(e => {
+                console.log("e");
+            });
+    }
 
 return (
     <div className="container py-4 my-4">
@@ -185,26 +191,27 @@ return (
             {/* <p>Grp members: {props.group.members.length}</p>
             <p>Grp req Pending: {props.group.request_pending.length}</p> */}
         </div>
-        <Button  variant="success" className="add_expense_sticky_button rounded-pill" onClick={()=>openModel(props.group._id)}><MdListAlt size="22" className="mx-1 mb-1" />Add Expense</Button>
+        <Button  variant="success" className="add_expense_sticky_button within_group_btn rounded-pill" onClick={()=>openModel(props.group._id)}><MdListAlt size="22" className="mx-1 mb-1" />Add Expense</Button>
         <p className='hr3'></p>
         <>
         {GroupExpenses.length>0?GroupExpenses.map((expense, idx) => (
-            <Row>
-                <Col xs={1}>{expense.createdAt}</Col>
-                <Col xs={2}><MdListAlt style={{backgroundColor:"white",color: "green"}} size='50'  /></Col>
-                <Col>
-                    <Row><h6>{expense.expenseDescription}</h6></Row>
-                    <Row><p>{UserAndId[expense.paid_by]} paid ₹{expense.expenseAmount}</p></Row>
+            <Row className='my-4'>
+                <Col xs={2} className="my-auto text-center">{ moment(expense.createdAt).format("MMM DD")}</Col>
+                <Col xs={2} className="my-auto text-center"><FontAwesomeIcon icon={expenseCategoryIdAndIcon[expense.expenseCategory]}  size="2x" /></Col>
+                <Col xs={5} className="my-auto">
+                    <Row><h6 className="mb-0 text-capitalize mid_small">{expense.expenseDescription}</h6></Row>
+                    <Row><p className="mb-0 text_small">{UserAndId[expense.paid_by]} paid ₹{expense.expenseAmount}</p></Row>
                 </Col>
-                <Col xs={2} style={{"textAlign":"end"}}>
-                    {(expense.paid_by === userData._id)?  
-                    <>
-                    <p>you lent<br></br>₹{parseInt(expense.expenseAmount-(expense.expenseAmount/expense.per_person)).toFixed(2)}</p>
-                    </>
+                <Col xs={3} className="my-auto pl-0" style={{"textAlign":"end"}}>
+
+                {(expense.paid_by === userData._id)?  
+                    <div className="my-auto"><p className='vv_small mb-0'>you lent</p>
+                        <p className='mb-0'>₹{parseInt(expense.expenseAmount-(expense.expenseAmount/expense.per_person)).toFixed(2)}</p>
+                    </div>
                     :(expense.split_betn.includes(userData._id))?  
-                    <>
-                    <p>you borrowed<br></br>₹{parseInt(expense.expenseAmount/expense.per_person).toFixed(2)}</p>
-                    </>
+                    <div className="my-auto"><p className='vv_small mb-0 px-0'>you borrowed</p>
+                        <p className='mb-0'>₹{parseInt(expense.expenseAmount/expense.per_person).toFixed(2)}</p>
+                    </div>
                     :
                     <>
                     <p>not involved</p>

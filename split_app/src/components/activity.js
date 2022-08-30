@@ -77,13 +77,17 @@ function Activity() {
 
 
     useEffect(() => {
-        getAllGroupExpenses();
+        resetPage()
         getUsersList();
         getAllGroups()
-        getAllGroupExpenseDivsion()
-        getAllPayments()
         getExpenseCategory()
     }, []);
+
+    const resetPage= ()=>{
+        getAllGroupExpenses();
+        getAllGroupExpenseDivsion()
+        getAllPayments()
+    }
 
     const getExpenseCategory = ()=>{
         console.log('getExpenseCategory')
@@ -151,7 +155,7 @@ function Activity() {
         .then(res => {
             const data = res.data;
             console.log(data)
-            getAllGroupExpenses();
+            resetPage();
             // setGroupAndIds(groupNameAndIds)
         }).catch(e => {
             console.log("e");
@@ -164,7 +168,7 @@ function Activity() {
         .then(res => {
             const data = res.data;
             console.log(data)
-            getAllGroupExpenses();
+            resetPage();
 
             // setGroupAndIds(groupNameAndIds)
         }).catch(e => {

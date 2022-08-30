@@ -50,7 +50,9 @@ body, .expense_details{
     left: 1em;
     z-index: 100;
 } */
-
+.add_expense_sticky_button.within_group_btn{
+    z-index: 9999999999999;
+}
 .add_expense_sticky_button{
     position: fixed;
     bottom: 5em;
