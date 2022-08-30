@@ -15,7 +15,6 @@ import moment from 'moment'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Loader from './loader';
 
-
 function GroupDashboard(props) {
     console.log(props.group)
     const [allgroups, setAllGroups] = useState([]);

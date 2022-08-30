@@ -19,6 +19,8 @@ import moment from 'moment'
 import Image from 'react-bootstrap/Image'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Loader from './loader'
+import GroupsList from './groupList';
+
 
 function Payments() {
     const [allgroups, setAllGroups] = useState([]);
@@ -257,7 +259,7 @@ return (
                 </div>
             </Accordion.Body>
             </Accordion.Item>
-        )): null}
+        )): <GroupsList></GroupsList>}
         </Accordion>
         :<Loader></Loader>}
     </div>

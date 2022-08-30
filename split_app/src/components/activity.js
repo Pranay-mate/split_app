@@ -20,6 +20,8 @@ import Image from 'react-bootstrap/Image'
 import { faHome } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Loader from './loader'
+import GroupsList from './groupList';
+
 function Activity() {
     const [allgroups, setAllGroups] = useState([]);
     const [openedGroup, setOpenGroup] = useState([]);
@@ -287,7 +289,7 @@ function Activity() {
                 </div>
             </Accordion.Body>
             </Accordion.Item>
-        )): null}
+        )): <GroupsList></GroupsList>}
         </Accordion>
         :<Loader></Loader>}
     </div>
