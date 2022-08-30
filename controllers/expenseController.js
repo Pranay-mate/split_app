@@ -11,6 +11,9 @@ module.exports.getExpenseCategory = async (req, res)=>{
         console.log("getExpense")
         // const { userId } = req.params;
         let expenses = await Expense.ExpenseCategory.find();
+        // expenses.forEach(async(expense)=>{
+        //     let exp  = await Expense.ExpenseCategory.findByIdAndUpdate(expense._id,{'icon':'fas fa-gamepad'})
+        // })
         // console.log("expenses"+ expenses)
         // if(expenses.length==0){
         //     let users = await Expense.ExpenseCategory.insertMany([{"group":"Entertainment",

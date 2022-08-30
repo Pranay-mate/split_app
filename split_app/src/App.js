@@ -79,14 +79,15 @@ const handleFailure = (result) => {
     <div className="App">
       {loginData ? null : (
         <Container>
-          <Row className=' mt-4'>
-            <Col xs={5} className="mx-auto">
+          <Row className='mx-auto mt-4'  style={{textAlign: 'center'}}>
+            <Col xs={12}>
               <GoogleLogin
               clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
               buttonText="Log in with Google"
               onSuccess={handleLogin}
               onFailure={handleFailure}
               cookiePolicy={'single_host_origin'}
+              className="align-self-center"
               ></GoogleLogin>
               </Col>
           </Row>

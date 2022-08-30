@@ -5,6 +5,15 @@ body, .expense_details{
 .verySmall{
     font-size: 11px;
 }
+.text_small{
+    font-size: 12px;
+}
+.vv_small{
+    font-size: 10px;
+}
+.mid_small{
+    font-size: 13px;
+}
 .card{
     background-color: #20232a!important;
 }

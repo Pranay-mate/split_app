@@ -17,6 +17,7 @@ import { BiCheckCircle } from 'react-icons/bi'
 import Accordion from 'react-bootstrap/Accordion';
 import moment from 'moment'
 import Image from 'react-bootstrap/Image'
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 function Payments() {
     const [allgroups, setAllGroups] = useState([]);
@@ -42,6 +43,7 @@ function Payments() {
     const [allPayments, setAllPayments] = useState([]);
     let userData = JSON.parse(localStorage.getItem('loginData'));
     const [activeAccordion, setActiveAccordion] = useState(0);
+    const [expenseCategoryIdAndIcon, setExpenseCategoryIdAndIcon] = useState([]);
 
     const getAllGroupExpenses = ()=>{
         console.log('getAllGroupExpenses')
@@ -78,6 +80,7 @@ function Payments() {
         getAllGroups()
         getAllGroupExpenseDivsion()
         getAllPayments()
+        getExpenseCategory()
     }, []);
 
 
@@ -168,6 +171,22 @@ function Payments() {
         });
     }
 
+    const getExpenseCategory = ()=>{
+        console.log('getExpenseCategory')
+        axios.get(`/api/getExpenseCategory`)
+            .then(res => {
+                const data = res.data;
+                console.log(data)
+                let CategoryIdAndIcon = [];
+                data.map((category)=>{
+                    CategoryIdAndIcon[category._id] = category.icon;
+                })
+                setExpenseCategoryIdAndIcon(CategoryIdAndIcon)
+            }).catch(e => {
+                console.log("e");
+            });
+    }
+
 
     const changeActiveAccordion = (id) =>{
         if(activeAccordion == id){
@@ -189,41 +208,42 @@ return (
             <Accordion.Body>
                 <div>
                 {allPayments[groupExpense[0].groupId] !== undefined?allPayments[groupExpense[0].groupId].map((payment,i)=>(
-                        <Row className="my-4 mx-2">
-                            <Col xs={2} className="my-auto">
+                        <Row className="my-4">
+                            <Col xs={2} className="mx-auto text-center">
                                 {/* <div className={'avatar-'+i} style={{"width":"40px","height":"40px", borderRadius:"2em"}}></div> */}
                                 <Image src={UserAndPic[payment.userId]} roundedCircle alt="Picture" style={{"width":"40px","height":"40px"}} ></Image>
                             </Col>
-                            <Col xs={8} className="my-auto">
+                            <Col xs={7}  className="mb-0 text_small">
                                 {UserAndId[payment.userId]} paid ₹{payment.amount} to {UserAndId[payment.paid_to]}  
                             </Col>
-                            <Col xs={2} style={{"textAlign":"end"}} className="my-auto">
-                                {payment.isConfirmed?<Button variant="outline-success">Payment Successful</Button>:<Button>Payment pending</Button>}
+                            <Col xs={3} style={{"textAlign":"end"}} className="my-auto pl-0">
+                                {payment.isConfirmed?<p>Successful</p>:<p>Pending</p>}
                             </Col>
                         </Row>
                 )):null}
                 <p className='hr3'></p>
                 <div>
                 {groupExpense.map((expense)=>(
-                    <Row>
-                        <Col xs={1}>{ moment(expense.createdAt).format("MMM DD")}</Col>
-                        <Col xs={2}><MdListAlt style={{backgroundColor:"white",color: "green"}} size='50'  /></Col>
-                        <Col>
-                            <Row><h6>{expense.expenseDescription}</h6></Row>
-                            <Row><p>{UserAndId[expense.paid_by]} paid ₹{expense.expenseAmount}</p></Row>
+                    <Row className="my-2">
+                        <Col xs={2} className="my-auto text-center">{ moment(expense.createdAt).format("MMM DD")}</Col>
+                        <Col xs={2} className="my-auto text-center"><FontAwesomeIcon icon={expenseCategoryIdAndIcon[expense.expenseCategory]}  size="2x" /></Col>
+                        {/* <Col xs={2}><MdListAlt style={{backgroundColor:"white",color: "green"}} size='50'  /></Col> */}
+                        <Col xs={5} className="my-auto">
+                            <Row><h6 className="mb-0 text-capitalize mid_small">{expense.expenseDescription}</h6></Row>
+                            <Row><p className="mb-0 text_small">{UserAndId[expense.paid_by]} paid ₹{expense.expenseAmount}</p></Row>
                         </Col>
-                        <Col xs={2} style={{"textAlign":"end"}}>
+                        <Col xs={3} className="my-auto" style={{"textAlign":"end"}}>
                             {(expense.paid_by === userData._id)?  
-                            <>
-                            <p>you lent<br></br>₹{parseInt(expense.expenseAmount-(expense.expenseAmount/expense.per_person)).toFixed(2)}</p>
-                            </>
+                            <div className="my-auto"><p className='vv_small mb-0'>you lent</p>
+                                <p className='mb-0'>₹{parseInt(expense.expenseAmount-(expense.expenseAmount/expense.per_person)).toFixed(2)}</p>
+                            </div>
                             :(expense.split_betn.includes(userData._id))?  
-                            <>
-                            <p>you borrowed<br></br>₹{parseInt(expense.expenseAmount/expense.per_person).toFixed(2)}</p>
-                            </>
+                            <div className="my-auto"><p className='vv_small mb-0 px-0'>you borrowed</p>
+                                <p className='mb-0'>₹{parseInt(expense.expenseAmount/expense.per_person).toFixed(2)}</p>
+                            </div>
                             :
                             <>
-                            <p>not involved</p>
+                            <p className='vv_small mb-0'>not involved</p>
                             </>
                             }
                         </Col>

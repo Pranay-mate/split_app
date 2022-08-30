@@ -17,6 +17,8 @@ import { BiCheckCircle } from 'react-icons/bi'
 import Accordion from 'react-bootstrap/Accordion';
 import moment from 'moment'
 import Image from 'react-bootstrap/Image'
+import { faHome } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 function Activity() {
     const [allgroups, setAllGroups] = useState([]);
@@ -41,6 +43,7 @@ function Activity() {
     const [allPayments, setAllPayments] = useState([]);
     const [activeAccordion, setActiveAccordion] = useState(0);
     const [UserAndPic, setUserAndPics] = useState([]);
+    const [expenseCategoryIdAndIcon, setExpenseCategoryIdAndIcon] = useState([]);
 
     let userData = JSON.parse(localStorage.getItem('loginData'));
 
@@ -79,8 +82,24 @@ function Activity() {
         getAllGroups()
         getAllGroupExpenseDivsion()
         getAllPayments()
+        getExpenseCategory()
     }, []);
 
+    const getExpenseCategory = ()=>{
+        console.log('getExpenseCategory')
+        axios.get(`/api/getExpenseCategory`)
+            .then(res => {
+                const data = res.data;
+                console.log(data)
+                let CategoryIdAndIcon = [];
+                data.map((category)=>{
+                    CategoryIdAndIcon[category._id] = category.icon;
+                })
+                setExpenseCategoryIdAndIcon(CategoryIdAndIcon)
+            }).catch(e => {
+                console.log("e");
+            });
+    }
 
     const getUsersList = () => {
         console.log('getUsersList')
@@ -187,26 +206,26 @@ function Activity() {
             </Accordion.Header>
             <Accordion.Body>
                 {groupExpenseDivision[groupExpense[0].groupId] !== undefined?groupExpenseDivision[groupExpense[0].groupId].map((expenseData,i)=>(
-                    <Row className="my-4 mx-2">
-                        <Col xs={2} className="my-auto">
+                    <Row className="my-4">
+                        <Col xs={2} className="mx-auto text-center">
                             {/* <div className={'avatar-'+i} style={{"width":"40px","height":"40px", borderRadius:"2em"}}></div> */}
                             <Image src={UserAndPic[expenseData.sender]} roundedCircle alt="Picture" style={{"width":"40px","height":"40px"}} ></Image>
                         </Col>
-                        <Col xs={8} className="my-auto">
+                        <Col xs={7}  className="mb-0 text_small">
                             {UserAndId[expenseData.sender]} owes ₹{parseInt(expenseData.amount).toFixed(2)} to {UserAndId[expenseData.receiver]}
                         </Col>
-                        <Col xs={2} style={{"textAlign":"end"}} className="my-auto">
+                        <Col xs={3} style={{"textAlign":"end"}} className="my-auto">
                             {expenseData.status==='Pay' && expenseData.sender === userData._id?
-                            <Button variant="success" onClick={()=>settleUpExpenseReq(groupExpense[0].groupId,expenseData.sender,expenseData.receiver,parseInt(expenseData.amount))}>Paid</Button>
+                            <Button variant="outline-success" onClick={()=>settleUpExpenseReq(groupExpense[0].groupId,expenseData.sender,expenseData.receiver,parseInt(expenseData.amount))}>Paid</Button>
                             :expenseData.status==='Pay' && expenseData.receiver === userData._id?
-                            <Button variant="success">Not Received</Button>
+                            <p>Not Received</p>
                             :expenseData.status==='Pending' && expenseData.receiver === userData._id?
-                            <Button variant="success" onClick={()=>receivedPayment(expenseData.id,groupExpense[0].groupId,expenseData.sender,expenseData.receiver,parseInt(expenseData.amount))}>Confirm payment</Button>
+                            <Button variant="outline-success" onClick={()=>receivedPayment(expenseData.id,groupExpense[0].groupId,expenseData.sender,expenseData.receiver,parseInt(expenseData.amount))}>Confirm payment</Button>
                             :expenseData.status==='Pending' ?
-                            <Button style={{'cursor':"auto"}} variant="outline-success">Pending</Button>
+                            <p>Pending</p>
                             :expenseData.status==='Settled'?
-                            <Button style={{'cursor':"auto"}} variant="outline-success">Settled</Button>
-                            :<Button style={{'cursor':"auto"}} variant="outline-success">Not involved</Button>
+                            <p>Settled</p>
+                            :<p>Not involved</p>
                             }
                         </Col>
                     </Row>
@@ -216,15 +235,15 @@ function Activity() {
                 <div>
                 <div className="my-2 text-center mx-4"><Button variant="outline-success">All Settled</Button></div>
                     {allPayments[groupExpense[0].groupId] !== undefined?allPayments[groupExpense[0].groupId].map((payment,i)=>(
-                        <Row className="my-4 mx-2">
-                            <Col xs={2} className="my-auto">
+                        <Row className="my-4">
+                            <Col xs={2} className="mx-auto text-center">
                                 <div className={'avatar-'+i} style={{"width":"40px","height":"40px", borderRadius:"2em"}}></div>
                             </Col>
-                            <Col xs={8} className="my-auto">
+                            <Col xs={7}  className="mb-0 text_small">
                                 {UserAndId[payment.userId]} paid ₹{payment.amount} to {UserAndId[payment.paid_to]}  
                             </Col>
-                            <Col xs={2} style={{"textAlign":"end"}} className="my-auto">
-                                {payment.isConfirmed?<Button variant="outline-success">Payment Successful</Button>:<Button>Payment pending</Button>}
+                            <Col xs={3} style={{"textAlign":"end"}} className="my-auto pl-0">
+                                {payment.isConfirmed?<p>Successful</p>:<p>Pending</p>}
                             </Col>
                         </Row>
                     )):null}
@@ -233,22 +252,23 @@ function Activity() {
                 <p className='hr3'></p>
                 <div>
                 {groupExpense.map((expense)=>(
-                    <Row>
-                        <Col xs={1}>{ moment(expense.createdAt).format("MMM DD")}</Col>
-                        <Col xs={2}><MdListAlt style={{backgroundColor:"white",color: "green"}} size='50'  /></Col>
-                        <Col>
-                            <Row><h6>{expense.expenseDescription}</h6></Row>
-                            <Row><p>{UserAndId[expense.paid_by]} paid ₹{expense.expenseAmount}</p></Row>
+                    <Row className='my-2'>
+                        <Col xs={2} className="my-auto text-center">{ moment(expense.createdAt).format("MMM DD")}</Col>
+                        <Col xs={2} className="my-auto text-center"><FontAwesomeIcon icon={expenseCategoryIdAndIcon[expense.expenseCategory]}  size="2x" /></Col>
+                        <Col xs={5} className="my-auto">
+                            <Row><h6 className="mb-0 text-capitalize mid_small">{expense.expenseDescription}</h6></Row>
+                            <Row><p className="mb-0 text_small">{UserAndId[expense.paid_by]} paid ₹{expense.expenseAmount}</p></Row>
                         </Col>
-                        <Col xs={2} style={{"textAlign":"end"}}>
-                            {(expense.paid_by === userData._id)?  
-                            <>
-                            <p>you lent<br></br>₹{parseInt(expense.expenseAmount-(expense.expenseAmount/expense.per_person)).toFixed(2)}</p>
-                            </>
+                        <Col xs={3} className="my-auto pl-0" style={{"textAlign":"end"}}>
+
+                        {(expense.paid_by === userData._id)?  
+                            <div className="my-auto"><p className='vv_small mb-0'>you lent</p>
+                                <p className='mb-0'>₹{parseInt(expense.expenseAmount-(expense.expenseAmount/expense.per_person)).toFixed(2)}</p>
+                            </div>
                             :(expense.split_betn.includes(userData._id))?  
-                            <>
-                            <p>you borrowed<br></br>₹{parseInt(expense.expenseAmount/expense.per_person).toFixed(2)}</p>
-                            </>
+                            <div className="my-auto"><p className='vv_small mb-0 px-0'>you borrowed</p>
+                                <p className='mb-0'>₹{parseInt(expense.expenseAmount/expense.per_person).toFixed(2)}</p>
+                            </div>
                             :
                             <>
                             <p>not involved</p>

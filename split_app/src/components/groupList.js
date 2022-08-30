@@ -347,7 +347,7 @@ return (
                 <Card className='' id={group._id}  onClick={(e)=>openGroup(group._id)}>
                     <Card.Body>
                         <Row>
-                            <Col xs="2" className="my-auto">
+                            <Col xs="2" className="my-auto text-center">
                             {/* <i class={cardData.Campaign_icon} style={{fontSize:'4em'}}></i> */}
                                 <div className={'avatar-'+idx} style={{"width":"40px","height":"40px", borderRadius:"2em"}}></div>
                             </Col>
@@ -357,13 +357,13 @@ return (
                             <Col xs="5" className="my-auto" style={{"textAlign":"end"}}>
                                 {groupExpenseDivision[group._id] !== undefined?groupExpenseDivision[group._id].map((expenseData,i)=>(
                                     <>
-                                    {expenseData.lent!=undefined && expenseData.lent>0
+                                    {expenseData.lent!==undefined && expenseData.lent>0
                                     ?<><p className='mb-0'>you lent</p>
                                         <p>₹{parseInt(expenseData.lent).toFixed(2)}</p>
                                     </>
                                     :null}
 
-                                    {expenseData.borrowed!=undefined && expenseData.borrowed>0?
+                                    {expenseData.borrowed!==undefined && expenseData.borrowed>0?
                                     <><p className='mb-0'>you borrowed </p>
                                     <p>₹{parseInt(expenseData.borrowed).toFixed(2)}</p>
                                     </>

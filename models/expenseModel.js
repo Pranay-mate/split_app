@@ -10,6 +10,10 @@ const expenseCategorySchema = mongoose.Schema(
         key: {
             type: String,
             required: true
+        },
+        icon:{
+            type: String,
+            required: true 
         }
     }
 );
