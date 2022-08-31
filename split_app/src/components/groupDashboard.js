@@ -52,7 +52,8 @@ function GroupDashboard(props) {
                 console.log("e");
             });
         }
-    } 
+    }
+
 
     const getUsersList = () => {
         console.log('getUsersList')
@@ -175,6 +176,7 @@ function GroupDashboard(props) {
             .then(res => {
                 const data = res.data;
                 console.log(data)
+                setExpenseCategories(data)
                 let CategoryIdAndIcon = [];
                 data.map((category)=>{
                     CategoryIdAndIcon[category._id] = category.icon;
@@ -184,6 +186,7 @@ function GroupDashboard(props) {
                 console.log("e");
             });
     }
+
 
 return (
     <div className="container py-4 my-4">
