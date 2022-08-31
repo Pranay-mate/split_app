@@ -143,6 +143,7 @@ module.exports.getAllGroupExpenseDivsion = async (req,res)=>{
         for (let grpId of userData.groups) {
             let expenses = await Expense.ExpenseDivision.find({'groupId':grpId,'expense':{ $ne: 0 }}).sort({"expense":-1});
             let groupDivision = [];
+            // console.log('getAllGroupExpenseDivsion: '+expenses)
             
             if(expenses.length>0){
                 left = 0;
@@ -156,7 +157,7 @@ module.exports.getAllGroupExpenseDivsion = async (req,res)=>{
                     console.log('right: '+right)
                     //pay -> req pending -> confirmed
                     // let settleReq = await Expense.paymentSettle.find({'userId':userId});
-
+                    
                     if(expenses[left].expense+expenses[right].expense>0){
                         let limitOfLeft  = Math.abs(expenses[right].expense);
                         // groupDivision.push('left: '+expenses[left].userId+' will pay '+limitOfLeft+' to right:'+expenses[right].userId)
@@ -167,8 +168,14 @@ module.exports.getAllGroupExpenseDivsion = async (req,res)=>{
                         expenses[right].expense=0
                         right--;
                     }else if(expenses[left].expense+expenses[right].expense<0){//100-200<0
+                        // console.log("expenses[start].expense")
+                        // console.log(expenses[right].expense)
+                        // console.log(expenses[left].expense)
+                        // console.log(expenses[right].userId)
+                        // console.log(expenses[left].userId)
+                        // console.log("expenses[end].expense")
                         let status = await getStatusOfSettlement(grpId,expenses[right].userId,expenses[left].userId,expenses[left].expense)
-                        groupDivision.push({'id':expenses[left]._id,'sender':expenses[right].userId,'receiver':expenses[right].userId,'amount':expenses[left].expense,'status':status})
+                        groupDivision.push({'id':expenses[left]._id,'sender':expenses[right].userId,'receiver':expenses[left].userId,'amount':expenses[left].expense,'status':status})
                         // groupDivision.push('left:'+expenses[left].userId+' will pay '+expenses[left].expense+' to right:'+expenses[right].userId)
                         let limitOfLeft = expenses[left].expense + expenses[right].expense;
                         expenses[left].expense=0
@@ -184,9 +191,9 @@ module.exports.getAllGroupExpenseDivsion = async (req,res)=>{
                         right--
                         left++
                     }
-
+                    
                 }
-             result[grpId] = groupDivision;
+                result[grpId] = groupDivision;
             }
         }
         res.status(200).json(result);
