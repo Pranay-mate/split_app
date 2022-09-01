@@ -207,7 +207,7 @@ module.exports.addGroupExpense = async (req, res)=>{
         // console.log(req.body)
         let expenseData = req.body;
         expenseData.split_betn = getOnlyIds(expenseData.split_betn);
-        // console.log(expenseData)
+        console.log(expenseData)
 
         const newGroupExpense = new Expense.GroupExpense(expenseData);
         const newGroupExpeneAdded = await newGroupExpense.save();
@@ -232,7 +232,6 @@ module.exports.addGroupExpense = async (req, res)=>{
                 let defaultAmount = parseInt(userExist[0].expense);
                 let newExpenseDivision = await Expense.ExpenseDivision.updateOne({'groupId':expenseData.groupId,'userId':userId},{'expense':defaultAmount+(expenseData.expenseAmount-splitedAmount)});
             }
-
         }
 
         res.status(200).json(newGroupExpeneAdded);

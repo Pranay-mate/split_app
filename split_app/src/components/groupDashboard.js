@@ -1,6 +1,6 @@
 import GoogleLogin from 'react-google-login';
 import { gapi } from 'gapi-script';
-import { useState, useEffect } from 'react';
+import { useState, useEffect,useRef } from 'react';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -14,6 +14,8 @@ import { MdListAlt } from 'react-icons/md';
 import moment from 'moment'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Loader from './loader';
+import Overlay from 'react-bootstrap/Overlay';
+import Tooltip from 'react-bootstrap/Tooltip';
 
 function GroupDashboard(props) {
     console.log(props.group)
@@ -35,6 +37,8 @@ function GroupDashboard(props) {
     const [expenseCategoryIdAndIcon, setExpenseCategoryIdAndIcon] = useState([]);
     const [displayLoader, setDisplayLoader] = useState(true);
     let userData = JSON.parse(localStorage.getItem('loginData'));
+    const [showToolTip, setShowToolTip] = useState(false);
+    const target = useRef(null);
 
    
     const getAllGroups = () => {
@@ -195,6 +199,32 @@ return (
         <div className='m-4 group_header'>
             <h5>{props.group.group_name}</h5>
             <p>Created by: {props.group.created_by}</p>
+            <Button ref={target} onClick={() => setShowToolTip(!showToolTip)}>
+                Click me!
+            </Button>
+            <Overlay target={target.current} show={showToolTip} placement="right">
+                <Tooltip id="overlay-example">
+                    <Container>
+                        <Row>{props.group.group_name}</Row>
+                        <Row>{props.group.created_by}</Row>
+                        <Row>
+                            Members:
+                            {props.group.members.map((member)=>(
+                            <p className='m-0'>{UserAndId[member]}</p>
+                            ))}
+                        </Row>
+                        {props.group.request_pending.length>0?
+                        <Row>
+                            Pending Request:
+                            {props.group.request_pending.map((member)=>(
+                            <p className='m-0'>{UserAndId[member]}</p>
+                            ))}
+                        </Row>
+                        :null}
+
+                    </Container>
+                </Tooltip>
+            </Overlay>
             {/* <p>Grp members: {props.group.members.length}</p>
             <p>Grp req Pending: {props.group.request_pending.length}</p> */}
         </div>
