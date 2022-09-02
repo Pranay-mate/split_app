@@ -169,3 +169,60 @@ module.exports.addGroup = async (req, res)=>{
         console.log(error)
     }
 }
+
+module.exports.addMembers = async (req, res)=>{
+    try {
+        const {grpId} = req.params;
+        const members = req.body;
+
+        if(members.length>0){
+            await Group.findById(grpId)
+            .then(async userData=>{
+                let request_pending = members
+                console.log(userData)
+                console.log(request_pending)
+                
+                request_pending.forEach(async (request)=>{
+                    // find
+                    const users = await User.findById(request);
+                    console.log('find created By :'+users)
+                    console.log('groups: '+users.groups)
+                    console.log('request: '+users.group_requests)
+                    console.log(request)
+                    
+                    // update
+                    let requests = users.group_requests;
+                    // requests.push(request)
+
+                    // const updateGroup = await Group.findByIdAndUpdate(grpId,{"members":group_name,"request_pending":requests});
+                    // console.log('updateGroup: '+updateGroup)
+                    // let newGroupId = newGroupAdded._id.toString();
+                    // //adding groups in current login user Table
+                    // users[0].groups.push(newGroupId);
+                    // console.log(users[0].groups)
+                    // const userUpdated = await User.findOneAndUpdate({email:created_by},{'groups':users[0].groups});
+                    // console.log(userUpdated)
+            
+                //     //adding requested in user table
+                //     requests.forEach( async (id)=>{
+                //         let users = await User.findById(id);
+                //         users.group_requests.push(newGroupId)
+                //         let userReqUpdated = await User.findOneAndUpdate({_id:id},{'group_requests':users.group_requests});
+                //     })
+
+                })
+    
+            })
+            .then(response=>{
+                res.status(200).json({message: "Group added"});
+            })
+
+        }else{
+            res.status(400).json({message: "error in add group"});
+        }
+
+    }catch(error){
+        console.log(error)
+    }
+        
+}

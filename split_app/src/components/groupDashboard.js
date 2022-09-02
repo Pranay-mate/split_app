@@ -22,10 +22,14 @@ function GroupDashboard(props) {
     const [allgroups, setAllGroups] = useState([]);
     const [openedGroup, setOpenGroup] = useState('');
     const [selectedValue, setSelectedValue] = useState("");
+    const [selectedMemberValue, setSelectedMemberValue] = useState("");
     const [isOpen, setIsOpen] = useState(false);
+    const [isMemberModalOpen, setMemberModalOpen] = useState(false);
     const [grpId, setGrpId] = useState("");
     const [expenseCategories, setExpenseCategories] = useState([]);
     const [userLists, setUserList] = useState([]);
+    const [memberLists, setMemberLists] = useState([]);
+    const [selectedMemberLists, setSelectedMemberLists] = useState([]);
     const [selectedExpenseCat, setSelectedExpenseCat] = useState([]);
     const [selectPaidUser, setSelectPaidUser] = useState("");
     const [selectSplitIn, setSelectSplitIn] = useState([]);
@@ -77,6 +81,8 @@ function GroupDashboard(props) {
                 console.log(loginUserData)
                 setSelectPaidUser(userData._id)
                 setSelectedValue(loginUserData)
+                let membersValue = data.filter((user)=> !props.group.members.includes(user._id) && user.email!== userData.email)
+                setMemberLists(membersValue)
                 setUserList(data)
             }).catch(e => {
                 console.log("e");
@@ -150,6 +156,15 @@ function GroupDashboard(props) {
         setIsOpen(false);
       };
 
+      const showMembersModal = () => {
+        setMemberModalOpen(true);
+        console.log('showMembersModal')
+      };
+    
+      const hideMemberModal = () =>{
+        setMemberModalOpen(false)
+      }
+
     
     const onSelectExpenseCat = (selectedList, selectedItem)=> {
         setSelectedExpenseCat(selectedItem._id)
@@ -163,6 +178,11 @@ function GroupDashboard(props) {
 
     const onSelectSplitIn = (selectedList, selectedItem)=> {
         setSelectSplitIn(selectedList)
+        console.log(selectedList)
+    }
+
+    const onSelectMembers = (selectedList, selectedItem)=> {
+        setSelectedMemberLists(selectedList)
         console.log(selectedList)
     }
 
@@ -191,28 +211,59 @@ function GroupDashboard(props) {
             });
     }
 
+    const addMembers = (grpId)=>{
+        console.log(grpId)
+        console.log(selectedMemberLists)
+        if(selectedMemberLists.length>0){
+            axios.post(`/api/addMembers/`+grpId,selectedMemberLists)
+            .then(res => {
+                const data = res.data;
+                console.log(data)
+                
+            }).catch(e => {
+                console.log("e");
+            });
+        }else{
+            console.log('Please add members')
+        }
+    }
+    
+
 
 return (
     <div className="container py-4 my-4">
         {!displayLoader?
         <>
-        <div className='m-4 group_header'>
-            <h5>{props.group.group_name}</h5>
-            <p>Created by: {props.group.created_by}</p>
-            <Button ref={target} onClick={() => setShowToolTip(!showToolTip)}>
-                Click me!
-            </Button>
+        <div className='m-4 mb-1 group_header'>
+            <Row className="my-1">
+                <Col>
+                    <h5>{props.group.group_name}
+                        <a className='mx-1' ref={target} onClick={() => setShowToolTip(!showToolTip)} style={{color:"grey"}}>
+                            <FontAwesomeIcon icon="fas fa-info-circle" />
+                        </a>
+                    </h5>
+                </Col>
+                {props.group.created_by === userData.email?
+                    <Col style={{textAlign:'right'}}>
+                        <Button variant="outline-secondary" onClick={()=>showMembersModal()}>Add member</Button>
+                    </Col>
+                :null}
+            </Row>
+            <Row>
+                <p>Created by: {props.group.created_by}</p>
+            </Row>
+            
             <Overlay target={target.current} show={showToolTip} placement="right">
                 <Tooltip id="overlay-example">
                     <Container>
-                        <Row>{props.group.group_name}</Row>
-                        <Row>{props.group.created_by}</Row>
+                        {props.group.members.length>0?
                         <Row>
                             Members:
                             {props.group.members.map((member)=>(
                             <p className='m-0'>{UserAndId[member]}</p>
                             ))}
                         </Row>
+                        :null}
                         {props.group.request_pending.length>0?
                         <Row>
                             Pending Request:
@@ -225,8 +276,6 @@ return (
                     </Container>
                 </Tooltip>
             </Overlay>
-            {/* <p>Grp members: {props.group.members.length}</p>
-            <p>Grp req Pending: {props.group.request_pending.length}</p> */}
         </div>
         <Button  variant="success" className="add_expense_sticky_button within_group_btn rounded-pill" onClick={()=>openModel(props.group._id)}><MdListAlt size="22" className="mx-1 mb-1" />Add Expense</Button>
         <p className='hr3'></p>
@@ -307,6 +356,29 @@ return (
             <Modal.Footer>
             <Button onClick={()=>hideModal()} >Cancel</Button>
             <Button onClick={(e)=>saveExpense(grpId)} variant="danger">Save</Button>
+            </Modal.Footer>
+        </Modal>
+        <Modal show={isMemberModalOpen} onHide={hideMemberModal}>
+            <Modal.Header>
+                <Modal.Title>Add Members</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <Form>
+                    <Row>
+                        <Multiselect
+                        options={memberLists} // Options to display in the dropdown
+                        selectedValues={selectedMemberValue} // Preselected value to persist in dropdown
+                        onSelect={onSelectMembers} // Function will trigger on select event
+                        onRemove={onSelectMembers} // Function will trigger on remove event
+                        displayValue="name"
+                        />
+                    </Row>
+                    
+                </Form>
+            </Modal.Body>
+            <Modal.Footer>
+            <Button onClick={()=>hideMemberModal()} >Cancel</Button>
+            <Button onClick={(e)=>addMembers(props.group._id)} variant="danger">Save</Button>
             </Modal.Footer>
         </Modal>
         </>

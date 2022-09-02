@@ -60,7 +60,7 @@ body, .expense_details{
 }
 .hr3 {
   border: 0.5px;
-  height: 0.5px;
+  height: 1.5px;
   background-image: linear-gradient(to right, transparent, #CCC, transparent);  
   opacity: 1;
 }
