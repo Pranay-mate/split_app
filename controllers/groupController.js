@@ -192,7 +192,9 @@ module.exports.addMembers = async (req, res)=>{
                     
                     // update
                     let requests = users.group_requests;
-                    // requests.push(request)
+                    requests.push(request)
+                    console.log('requests: '+requests)
+                    console.log(requests)
 
                     // const updateGroup = await Group.findByIdAndUpdate(grpId,{"members":group_name,"request_pending":requests});
                     // console.log('updateGroup: '+updateGroup)
