@@ -29,7 +29,7 @@ app.use('/api/', groupRoutes);
 app.use('/api/', expenseRoutes);
 
 
-const uri = "mongodb+srv://Pranay:KEYYs1PXzpmdEspb@cluster0.kx27fbs.mongodb.net/?retryWrites=true&w=majority";
+const uri = "mongodb+srv://Pranay:Of2nm0wUJ1fgrJaC@cluster0.kx27fbs.mongodb.net/?retryWrites=true&w=majority";
 
 const port = process.env.PORT || 5000;
 
