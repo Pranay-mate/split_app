@@ -227,12 +227,12 @@ function GroupsList() {
     }
     
     const getAllGroupExpenseDivsion = ()=>{
-        console.log('getAllGroupExpenseDivsion')
         if(userData && userData._id!=undefined && userData._id!=null){
             axios.get(`/api/getAllGroupExpenseDivsion/`+userData._id)
             .then(res => {
                 const data = res.data;
-                console.log(data)
+        console.log('getAllGroupExpenseDivsion')
+        console.log(data)
                 
                 let UserExpense = {};
                 for (let [grpId, arrData] of Object.entries(data)) {

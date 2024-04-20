@@ -292,7 +292,7 @@ return (
 
                 {(expense.paid_by === userData._id)?  
                     <div className="my-auto"><p className='vv_small mb-0'>you lent</p>
-                        <p className='mb-0'>₹{parseInt(expense.expenseAmount-(expense.expenseAmount/expense.per_person)).toFixed(2)}</p>
+                        <p className='mb-0'>₹{expense.per_person==1?parseInt(expense.expenseAmount) : (expense.expenseAmount-(expense.expenseAmount/expense.per_person)).toFixed(2)}</p>
                     </div>
                     :(expense.split_betn.includes(userData._id))?  
                     <div className="my-auto"><p className='vv_small mb-0 px-0'>you borrowed</p>
