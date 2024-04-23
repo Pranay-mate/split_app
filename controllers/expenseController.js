@@ -202,45 +202,58 @@ module.exports.getAllGroupExpenseDivsion = async (req,res)=>{
     }
 }
 
-module.exports.addGroupExpense = async (req, res)=>{
+module.exports.addGroupExpense = async (req, res) => {
     try {
-        // console.log(req.body)
         let expenseData = req.body;
         expenseData.split_betn = getOnlyIds(expenseData.split_betn);
-        console.log(expenseData)
+        console.log(expenseData);
 
+        // Calculate the split amount per person
+        let splitAmountPerPerson = parseFloat(expenseData.expenseAmount) / parseInt(expenseData.per_person);
+
+        // Save the group expense
         const newGroupExpense = new Expense.GroupExpense(expenseData);
         const newGroupExpeneAdded = await newGroupExpense.save();
 
-        for(let userId of expenseData.split_betn){
-            let userExist = await Expense.ExpenseDivision.find({'groupId':expenseData.groupId,'userId':userId});
-            console.log("userExist: "+userExist)
-            console.log("expenseData: "+expenseData)
-            // console.log(userExist[0].expense)
-            let splitedAmount = parseInt(expenseData.expenseAmount)/parseInt(expenseData.per_person);
+        for (let userId of expenseData.split_betn) {
+            let userExist = await Expense.ExpenseDivision.find({ 'groupId': expenseData.groupId, 'userId': userId });
+            let userExpense = 0;
 
-            
-            if(userExist.length === 0 && expenseData.paid_by != userId){
-                let newExpenseDivision = new Expense.ExpenseDivision({'groupId':expenseData.groupId,'userId':userId,'expense':-splitedAmount});
-                let newExpenseDivisionAdded = await newExpenseDivision.save();
-            }else if(userExist.length === 0 && expenseData.paid_by == userId){
-                let newExpenseDivision = new Expense.ExpenseDivision({'groupId':expenseData.groupId,'userId':userId,'expense':expenseData.expenseAmount-splitedAmount});
-                let newExpenseDivisionAdded = await newExpenseDivision.save();
+            // Check if the user has existing expense records
+            if (userExist.length > 0) {
+                userExpense = parseFloat(userExist[0].expense);
             }
-            else if(userExist.length > 0 && expenseData.paid_by != userId){
-                let defaultAmount = parseInt(userExist[0].expense);
-                let newExpenseDivision = await Expense.ExpenseDivision.updateOne({'groupId':expenseData.groupId,'userId':userId},{'expense':defaultAmount-splitedAmount})
-            }else{
-                let defaultAmount = parseInt(userExist[0].expense);
-                let newExpenseDivision = await Expense.ExpenseDivision.updateOne({'groupId':expenseData.groupId,'userId':userId},{'expense':defaultAmount+(expenseData.expenseAmount-splitedAmount)});
+
+            // Adjust the user's expense based on the proportional split
+            if (userId === expenseData.paid_by) {
+                // If the user is the payer, subtract the split amount per person
+                userExpense += parseFloat(expenseData.expenseAmount) - splitAmountPerPerson;
+            } else {
+                // If the user is not the payer, subtract their proportional share
+                userExpense -= splitAmountPerPerson;
+            }
+
+            // Save or update the user's expense record
+            console.log('userExist- '+userExist)
+            console.log('userExpense')
+            console.log(userExpense)
+            if (userExist.length === 0) {
+                // If the user does not have an existing record, create a new one
+                let newExpenseDivision = new Expense.ExpenseDivision({ 'groupId': expenseData.groupId, 'userId': userId, 'expense': userExpense });
+                await newExpenseDivision.save();
+            } else {
+                // If the user has an existing record, update it
+                await Expense.ExpenseDivision.updateOne({ 'groupId': expenseData.groupId, 'userId': userId }, { 'expense': userExpense });
             }
         }
 
-        res.status(200).json(newGroupExpeneAdded);
+        res.status(200).json({ message: 'Expense added successfully', expense: newGroupExpeneAdded });
     } catch (error) {
-        res.status(400).json({message: error.message});
+        res.status(400).json({ message: error.message });
     }
-}
+};
+
+
 
 module.exports.settleUpExpenseReq = async (req,res)=>{
     try{

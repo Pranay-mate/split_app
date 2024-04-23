@@ -16,6 +16,9 @@ const groupSchema = mongoose.Schema(
         },
         request_pending: {
             type: Array
+        },
+        deleted_by_members: {
+            type: Array
         }
     },{timestamps:true}
 );

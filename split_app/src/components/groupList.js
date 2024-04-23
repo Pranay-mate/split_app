@@ -295,20 +295,27 @@ function GroupsList() {
     }
     
     const addGroup = () => {
-        console.log('restrictttttttttted')
+        console.log('restrictttttttttted');
         let userData = JSON.parse(localStorage.getItem('loginData'));
-        if(userData && userData.email != undefined && userData.email != null){
-            axios.post(`/api/addGroup`,{'group_name':groupName,'created_by':userData.email,'requests':selectedList})
+        if (userData && userData.email != undefined && userData.email != null) {
+            axios.post(`/api/addGroup`, {'group_name': groupName, 'created_by': userData.email, 'requests': selectedList})
             .then(res => {
                 const data = res.data;
-                console.log(data)
+                console.log(data);
                 setGroupModalOpen(false);
-                getAllGroups()
-            }).catch(e => {
-                console.log("e");
+                getAllGroups();
+            })
+            .catch(error => {
+                if (error.response && error.response.status === 400) {
+                    console.log(error.response.data.statusText); // Log the error message
+                    // Display the error message to the user or handle it accordingly
+                } else {
+                    console.error(error); // Log other errors
+                }
             });
         }
-    }
+    };
+    
 
     const onSelect = (selectedList, selectedItem)=> {
         setSelectedList(selectedList)

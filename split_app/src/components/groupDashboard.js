@@ -1,6 +1,6 @@
 import GoogleLogin from 'react-google-login';
 import { gapi } from 'gapi-script';
-import { useState, useEffect,useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -16,6 +16,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Loader from './loader';
 import Overlay from 'react-bootstrap/Overlay';
 import Tooltip from 'react-bootstrap/Tooltip';
+import Alert from 'react-bootstrap/Alert';
+
 
 function GroupDashboard(props) {
     console.log(props.group)
@@ -44,6 +46,20 @@ function GroupDashboard(props) {
     const [showToolTip, setShowToolTip] = useState(false);
     const target = useRef(null);
 
+    const [errorMessage, setErrorMessage] = useState('');
+    const [showErrorAlert, setShowErrorAlert] = useState(false);
+    const [variantAlert, setVariantAlert] = useState(false);
+
+    const handleResponse = (msg, type) => {
+        setErrorMessage(msg);
+        setVariantAlert(type);
+        setShowErrorAlert(true);
+
+        setTimeout(() => {
+            setShowErrorAlert(false);
+        }, 3000);
+    };
+
    
     const getAllGroups = () => {
         console.log('getAllGroups')
@@ -57,7 +73,8 @@ function GroupDashboard(props) {
                 console.log(data)
                 setAllGroups(data)
             }).catch(e => {
-                console.log("e");
+                 console.log(e);
+                handleResponse(e.message, 'danger');
             });
         }
     }
@@ -85,7 +102,8 @@ function GroupDashboard(props) {
                 setMemberLists(membersValue)
                 setUserList(data)
             }).catch(e => {
-                console.log("e");
+                console.log(e);
+                handleResponse(e.message, 'danger');
             });
         }
     }
@@ -101,7 +119,8 @@ function GroupDashboard(props) {
             });
             setGroupExpenses(data)
         }).catch(e => {
-            console.log("e");
+             console.log(e);
+                handleResponse(e.message, 'danger');
         });
     }
 
@@ -139,7 +158,8 @@ function GroupDashboard(props) {
                 setIsOpen(false)
                 getGroupExpenses(grpId)
             }).catch(e => {
-                console.log("e");
+                 console.log(e);
+                handleResponse(e.message, 'danger');
             });
         }else{
             console.log('check fields')
@@ -157,6 +177,7 @@ function GroupDashboard(props) {
       };
 
       const showMembersModal = () => {
+        getUsersList();
         setMemberModalOpen(true);
         console.log('showMembersModal')
       };
@@ -207,7 +228,8 @@ function GroupDashboard(props) {
                 })
                 setExpenseCategoryIdAndIcon(CategoryIdAndIcon)
             }).catch(e => {
-                console.log("e");
+                 console.log(e);
+                handleResponse(e.message, 'danger');
             });
     }
 
@@ -221,170 +243,190 @@ function GroupDashboard(props) {
                 console.log(data)
                 
             }).catch(e => {
-                console.log("e");
+                 console.log(e);
+                handleResponse(e.message, 'danger');
             });
         }else{
             console.log('Please add members')
         }
     }
-    
 
+    const deleteGroup = (groupId) => {
+        // Call the backend API to delete the group
+        axios.delete(`/api/deleteGroup/${userData._id}/${groupId}`)
+            .then(res => {
+                const data = res.data;
+                console.log(data);
+                // Remove the group from the UI
+                setAllGroups(allgroups.filter(group => group._id !== groupId));
+                window.location.href = '/'
+            }).catch(e => {
+                console.log("Error:", e);
+            });
+    };
 
-return (
-    <div className="container py-4 my-4">
-        {!displayLoader?
-        <>
-        <div className='m-4 mb-1 group_header'>
-            <Row className="my-1">
-                <Col>
-                    <h5>{props.group.group_name}
-                        <a className='mx-1' ref={target} onClick={() => setShowToolTip(!showToolTip)} style={{color:"grey"}}>
-                            <FontAwesomeIcon icon="fas fa-info-circle" />
-                        </a>
-                    </h5>
-                </Col>
-                {props.group.created_by === userData.email?
-                    <Col style={{textAlign:'right'}}>
-                        <Button variant="outline-secondary" onClick={()=>showMembersModal()}>Add member</Button>
+    return (
+        <div className="container py-4 my-4">
+            {!displayLoader?
+            <>
+            <div className='m-4 mb-1 group_header'>
+                <Row className="my-1">
+                    <Col>
+                        <h5>{props.group.group_name}
+                            <a className='mx-1' ref={target} onClick={() => setShowToolTip(!showToolTip)} style={{color:"grey"}}>
+                                <FontAwesomeIcon icon="fas fa-info-circle" />
+                            </a>
+                        </h5>
                     </Col>
-                :null}
-            </Row>
-            <Row>
-                <p>Created by: {props.group.created_by}</p>
-            </Row>
-            
-            <Overlay target={target.current} show={showToolTip} placement="right">
-                <Tooltip id="overlay-example">
-                    <Container>
-                        {props.group.members.length>0?
-                        <Row>
-                            Members:
-                            {props.group.members.map((member)=>(
-                            <p className='m-0'>{UserAndId[member]}</p>
-                            ))}
-                        </Row>
-                        :null}
-                        {props.group.request_pending.length>0?
-                        <Row>
-                            Pending Request:
-                            {props.group.request_pending.map((member)=>(
-                            <p className='m-0'>{UserAndId[member]}</p>
-                            ))}
-                        </Row>
-                        :null}
+                    {props.group.created_by === userData.email?
+                        <Col style={{textAlign:'right'}}>
+                            <Button variant="outline-secondary" onClick={()=>showMembersModal()}><FontAwesomeIcon icon="fas fa-plus-circle" /> Members</Button>
+                            <Button variant="outline-danger" onClick={() => deleteGroup(props.group._id)}><FontAwesomeIcon icon="fas fa-trash" /> Group</Button>
+                        </Col>
 
-                    </Container>
-                </Tooltip>
-            </Overlay>
+                    :null}
+                </Row>
+                <Row>
+                    <p>Created by: {props.group.created_by}</p>
+                </Row>
+                
+                <Overlay target={target.current} show={showToolTip} placement="right">
+                    <Tooltip id="overlay-example">
+                        <Container>
+                            {props.group.members.length>0?
+                            <Row>
+                                Members:
+                                {props.group.members.map((member)=>(
+                                    <p className='m-0'>{UserAndId[member]}</p>
+                                ))}
+                            </Row>
+                            :null}
+                            {props.group.request_pending.length>0?
+                            <Row>
+                                Pending Request:
+                                {props.group.request_pending.map((member)=>(
+                                <p className='m-0'>{UserAndId[member]}</p>
+                                ))}
+                            </Row>
+                            :null}
+    
+                        </Container>
+                    </Tooltip>
+                </Overlay>
+            </div>
+            <Button  variant="success" className="add_expense_sticky_button within_group_btn rounded-pill" onClick={()=>openModel(props.group._id)}><MdListAlt size="22" className="mx-1 mb-1" />Add Expense</Button>
+            <p className='hr3'></p>
+            <>
+            {GroupExpenses.length>0?GroupExpenses.map((expense, idx) => (
+                <Row className='my-4'>
+                    <Col xs={2} className="my-auto text-center">{ moment(expense.createdAt).format("MMM DD")}</Col>
+                    <Col xs={2} className="my-auto text-center"><FontAwesomeIcon icon={expenseCategoryIdAndIcon[expense.expenseCategory]}  size="2x" /></Col>
+                    <Col xs={5} className="my-auto">
+                        <Row><h6 className="mb-0 text-capitalize mid_small">{expense.expenseDescription}</h6></Row>
+                        <Row><p className="mb-0 text_small">{UserAndId[expense.paid_by]} paid ₹{expense.expenseAmount}</p></Row>
+                    </Col>
+                    <Col xs={3} className="my-auto pl-0" style={{"textAlign":"end"}}>
+    
+                    {(expense.paid_by === userData._id)?  
+                        <div className="my-auto"><p className='vv_small mb-0'>you lent</p>
+                            <p className='mb-0'>₹{expense.per_person==1?parseInt(expense.expenseAmount) : (expense.expenseAmount-(expense.expenseAmount/expense.per_person)).toFixed(2)}</p>
+                        </div>
+                        :(expense.split_betn.includes(userData._id))?  
+                        <div className="my-auto"><p className='vv_small mb-0 px-0'>you borrowed</p>
+                            <p className='mb-0'>₹{parseInt(expense.expenseAmount/expense.per_person).toFixed(2)}</p>
+                        </div>
+                        :
+                        <>
+                        <p>not involved</p>
+                        </>
+                        }
+                    </Col>
+                </Row>
+            )):null}
+            </>
+           <Modal show={isOpen} onHide={hideModal}>
+                <Modal.Header>
+                <Modal.Title>Add Expense</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Row className='mb-3'>
+                            <Multiselect
+                            options={expenseCategories} // Options to display in the dropdown
+                            selectedValues={selectedValue} // Preselected value to persist in dropdown
+                            onSelect={onSelectExpenseCat} // Function will trigger on select event
+                            onRemove={onSelectExpenseCat} // Function will trigger on remove event
+                            displayValue="key"
+                            groupBy="group"
+                            singleSelect
+                            />
+                        </Row>
+                        <Row className='mb-3 mx-1'>
+                            <Form.Control placeholder="Enter a Description" onChange={(e)=>setExpenseDescri(e.target.value)} />
+                        </Row>
+                        <Row className='mb-3  mx-1'>
+                            <Form.Control placeholder="Amount in ₹" onChange={(e)=>setExpenseAmount(e.target.value)} />
+                        </Row>
+                        <Row>Paid by</Row>
+                        <Row  className='mb-3'>
+                            <Multiselect
+                            options={userLists} // Options to display in the dropdown
+                            selectedValues={selectedValue} // Preselected value to persist in dropdown
+                            onSelect={onSelectPaidUser} // Function will trigger on select event
+                            onRemove={onSelectPaidUser} // Function will trigger on remove event
+                            displayValue="userName"
+                            singleSelect
+                            />
+                        </Row>
+                        <Row>and split in</Row>
+                        <Row>
+                            <Multiselect
+                            options={userLists} // Options to display in the dropdown
+                            selectedValues={selectedValue} // Preselected value to persist in dropdown
+                            onSelect={onSelectSplitIn} // Function will trigger on select event
+                            onRemove={onSelectSplitIn} // Function will trigger on remove event
+                            displayValue="userName"
+                            />
+                        </Row>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                <Button onClick={()=>hideModal()} >Cancel</Button>
+                <Button onClick={(e)=>saveExpense(grpId)} variant="danger">Save</Button>
+                </Modal.Footer>
+            </Modal>
+            <Modal show={isMemberModalOpen} onHide={hideMemberModal}>
+                <Modal.Header>
+                    <Modal.Title>Add Members</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Row>
+                            <Multiselect
+                            options={memberLists} // Options to display in the dropdown
+                            selectedValues={selectedMemberValue} // Preselected value to persist in dropdown
+                            onSelect={onSelectMembers} // Function will trigger on select event
+                            onRemove={onSelectMembers} // Function will trigger on remove event
+                            displayValue="name"
+                            />
+                        </Row>
+                        
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                <Button onClick={()=>hideMemberModal()} >Cancel</Button>
+                <Button onClick={(e)=>addMembers(props.group._id)} variant="danger">Save</Button>
+                </Modal.Footer>
+            </Modal>
+             <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: '9999' }}>
+                <Alert show={showErrorAlert} variant={variantAlert} onClose={() => setShowErrorAlert(false)} dismissible>
+                    {errorMessage}
+                </Alert>
+            </div>
+            </>
+            :<Loader></Loader>}
         </div>
-        <Button  variant="success" className="add_expense_sticky_button within_group_btn rounded-pill" onClick={()=>openModel(props.group._id)}><MdListAlt size="22" className="mx-1 mb-1" />Add Expense</Button>
-        <p className='hr3'></p>
-        <>
-        {GroupExpenses.length>0?GroupExpenses.map((expense, idx) => (
-            <Row className='my-4'>
-                <Col xs={2} className="my-auto text-center">{ moment(expense.createdAt).format("MMM DD")}</Col>
-                <Col xs={2} className="my-auto text-center"><FontAwesomeIcon icon={expenseCategoryIdAndIcon[expense.expenseCategory]}  size="2x" /></Col>
-                <Col xs={5} className="my-auto">
-                    <Row><h6 className="mb-0 text-capitalize mid_small">{expense.expenseDescription}</h6></Row>
-                    <Row><p className="mb-0 text_small">{UserAndId[expense.paid_by]} paid ₹{expense.expenseAmount}</p></Row>
-                </Col>
-                <Col xs={3} className="my-auto pl-0" style={{"textAlign":"end"}}>
-
-                {(expense.paid_by === userData._id)?  
-                    <div className="my-auto"><p className='vv_small mb-0'>you lent</p>
-                        <p className='mb-0'>₹{expense.per_person==1?parseInt(expense.expenseAmount) : (expense.expenseAmount-(expense.expenseAmount/expense.per_person)).toFixed(2)}</p>
-                    </div>
-                    :(expense.split_betn.includes(userData._id))?  
-                    <div className="my-auto"><p className='vv_small mb-0 px-0'>you borrowed</p>
-                        <p className='mb-0'>₹{parseInt(expense.expenseAmount/expense.per_person).toFixed(2)}</p>
-                    </div>
-                    :
-                    <>
-                    <p>not involved</p>
-                    </>
-                    }
-                </Col>
-            </Row>
-        )):null}
-        </>
-       <Modal show={isOpen} onHide={hideModal}>
-            <Modal.Header>
-            <Modal.Title>Add Expense</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                <Form>
-                    <Row className='mb-3'>
-                        <Multiselect
-                        options={expenseCategories} // Options to display in the dropdown
-                        selectedValues={selectedValue} // Preselected value to persist in dropdown
-                        onSelect={onSelectExpenseCat} // Function will trigger on select event
-                        onRemove={onSelectExpenseCat} // Function will trigger on remove event
-                        displayValue="key"
-                        groupBy="group"
-                        singleSelect
-                        />
-                    </Row>
-                    <Row className='mb-3 mx-1'>
-                        <Form.Control placeholder="Enter a Description" onChange={(e)=>setExpenseDescri(e.target.value)} />
-                    </Row>
-                    <Row className='mb-3  mx-1'>
-                        <Form.Control placeholder="Amount in ₹" onChange={(e)=>setExpenseAmount(e.target.value)} />
-                    </Row>
-                    <Row>Paid by</Row>
-                    <Row  className='mb-3'>
-                        <Multiselect
-                        options={userLists} // Options to display in the dropdown
-                        selectedValues={selectedValue} // Preselected value to persist in dropdown
-                        onSelect={onSelectPaidUser} // Function will trigger on select event
-                        onRemove={onSelectPaidUser} // Function will trigger on remove event
-                        displayValue="name"
-                        singleSelect
-                        />
-                    </Row>
-                    <Row>and split in</Row>
-                    <Row>
-                        <Multiselect
-                        options={userLists} // Options to display in the dropdown
-                        selectedValues={selectedValue} // Preselected value to persist in dropdown
-                        onSelect={onSelectSplitIn} // Function will trigger on select event
-                        onRemove={onSelectSplitIn} // Function will trigger on remove event
-                        displayValue="name"
-                        />
-                    </Row>
-                </Form>
-            </Modal.Body>
-            <Modal.Footer>
-            <Button onClick={()=>hideModal()} >Cancel</Button>
-            <Button onClick={(e)=>saveExpense(grpId)} variant="danger">Save</Button>
-            </Modal.Footer>
-        </Modal>
-        <Modal show={isMemberModalOpen} onHide={hideMemberModal}>
-            <Modal.Header>
-                <Modal.Title>Add Members</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                <Form>
-                    <Row>
-                        <Multiselect
-                        options={memberLists} // Options to display in the dropdown
-                        selectedValues={selectedMemberValue} // Preselected value to persist in dropdown
-                        onSelect={onSelectMembers} // Function will trigger on select event
-                        onRemove={onSelectMembers} // Function will trigger on remove event
-                        displayValue="name"
-                        />
-                    </Row>
-                    
-                </Form>
-            </Modal.Body>
-            <Modal.Footer>
-            <Button onClick={()=>hideMemberModal()} >Cancel</Button>
-            <Button onClick={(e)=>addMembers(props.group._id)} variant="danger">Save</Button>
-            </Modal.Footer>
-        </Modal>
-        </>
-        :<Loader></Loader>}
-    </div>
-  );
+    );
 }
 
 export default GroupDashboard;
