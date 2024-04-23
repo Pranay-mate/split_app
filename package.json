@@ -9,7 +9,7 @@
   },
   "scripts": {
     "start": "node index.js",
-    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix split_app npm && npm run build",
+    "heroku-postbuild": "npm install --prefix split_app npm && npm run build",
     "start-watch": "nodemon index.js",
     "dev": "concurrently \"npm run start-watch\" \"cd split_app && npm start\""
   },
