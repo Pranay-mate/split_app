@@ -14,13 +14,13 @@
     "dev": "concurrently \"npm run start-watch\" \"cd split_app && npm start\""
   },
   "dependencies": {
-    "bson": "^4.6.5",
     "body-parser": "^1.20.0",
+    "bson": "^4.6.5",
     "cors": "^2.8.5",
     "dotenv": "^16.0.1",
-    "express": "^4.18.1",
+    "express": "^4.19.2",
     "google-auth-library": "^8.1.1",
-    "mongoose": "^6.5.2",
+    "mongoose": "^6.12.8",
     "path": "^0.12.7"
   },
   "devDependencies": {
