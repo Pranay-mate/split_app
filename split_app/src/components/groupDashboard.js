@@ -283,7 +283,6 @@ function GroupDashboard(props) {
                             <Button variant="outline-secondary" onClick={()=>showMembersModal()}><FontAwesomeIcon icon="fas fa-plus-circle" /> Members</Button>
                             <Button variant="outline-danger" onClick={() => deleteGroup(props.group._id)}><FontAwesomeIcon icon="fas fa-trash" /> Group</Button>
                         </Col>
-
                     :null}
                 </Row>
                 <Row>
