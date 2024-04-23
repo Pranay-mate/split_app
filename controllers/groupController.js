@@ -152,7 +152,6 @@ module.exports.deleteGroup = async (req, res) => {
 
         // Save the updated group
         await group.save();
-
         // Remove group from user's groups list
         user.groups = user.groups.filter(groupId => groupId !== group._id.toString());
         await user.save();
