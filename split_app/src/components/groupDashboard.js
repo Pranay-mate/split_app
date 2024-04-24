@@ -20,6 +20,7 @@ import Alert from 'react-bootstrap/Alert';
 
 
 function GroupDashboard(props) {
+    console.log('propsGroup')
     console.log(props.group)
     const [allgroups, setAllGroups] = useState([]);
     const [openedGroup, setOpenGroup] = useState('');
@@ -81,31 +82,23 @@ function GroupDashboard(props) {
 
 
     const getUsersList = () => {
+        let alreadyMemberOrRequestedUser = props.group.members.map((m)=> m._id)
+        alreadyMemberOrRequestedUser = [...alreadyMemberOrRequestedUser, ...props.group.request_pending.map((m)=> m._id)];
+         
         console.log('getUsersList')
-        let userData = JSON.parse(localStorage.getItem('loginData'));
-        if(userData && userData.email != undefined && userData._id != null){
-            console.log(userData._id)
-            axios.get(`/api/getUsers/`+userData._id)
-            .then(res => {
-                const data = res.data;
-                console.log(data)
-                let userAndId = [];
-                data.map((user)=>{
-                    userAndId[user._id] = user.name;
-                })
-                setUserAndIds(userAndId)
-                let loginUserData = data.filter((user)=> user._id == userData._id)
-                console.log(loginUserData)
-                setSelectPaidUser(userData._id)
-                setSelectedValue(loginUserData)
-                let membersValue = data.filter((user)=> !props.group.members.includes(user._id) && user.email!== userData.email)
-                setMemberLists(membersValue)
-                setUserList(data)
-            }).catch(e => {
-                console.log(e);
-                handleResponse(e.message, 'danger');
-            });
-        }
+        axios.get(`/api/getUsers/`)
+        .then(res => {
+            let data = res.data;
+            console.log('getUsers')
+            console.log(data)
+            data = data.filter((user)=> !alreadyMemberOrRequestedUser.includes(user._id))
+            console.log('afterFilter')
+            console.log(data)
+            setUserList(data)
+        }).catch(e => {
+            console.log(e);
+            handleResponse(e.message, 'danger');
+        });
     }
 
     const getGroupExpenses = (grpId)=>{
@@ -296,7 +289,7 @@ function GroupDashboard(props) {
                             <Row>
                                 Members:
                                 {props.group.members.map((member)=>(
-                                    <p className='m-0'>{UserAndId[member]}</p>
+                                    <p className='m-0'>{member.name}</p>
                                 ))}
                             </Row>
                             :null}
@@ -304,7 +297,7 @@ function GroupDashboard(props) {
                             <Row>
                                 Pending Request:
                                 {props.group.request_pending.map((member)=>(
-                                <p className='m-0'>{UserAndId[member]}</p>
+                                    <p className='m-0'>{member.name}</p>
                                 ))}
                             </Row>
                             :null}
@@ -369,7 +362,7 @@ function GroupDashboard(props) {
                         <Row>Paid by</Row>
                         <Row  className='mb-3'>
                             <Multiselect
-                            options={userLists} // Options to display in the dropdown
+                            options={props.group.members} // Options to display in the dropdown
                             selectedValues={selectedValue} // Preselected value to persist in dropdown
                             onSelect={onSelectPaidUser} // Function will trigger on select event
                             onRemove={onSelectPaidUser} // Function will trigger on remove event
@@ -380,7 +373,7 @@ function GroupDashboard(props) {
                         <Row>and split in</Row>
                         <Row>
                             <Multiselect
-                            options={userLists} // Options to display in the dropdown
+                            options={props.group.members} // Options to display in the dropdown
                             selectedValues={selectedValue} // Preselected value to persist in dropdown
                             onSelect={onSelectSplitIn} // Function will trigger on select event
                             onRemove={onSelectSplitIn} // Function will trigger on remove event
@@ -402,7 +395,7 @@ function GroupDashboard(props) {
                     <Form>
                         <Row>
                             <Multiselect
-                            options={memberLists} // Options to display in the dropdown
+                            options={userLists} // Options to display in the dropdown
                             selectedValues={selectedMemberValue} // Preselected value to persist in dropdown
                             onSelect={onSelectMembers} // Function will trigger on select event
                             onRemove={onSelectMembers} // Function will trigger on remove event

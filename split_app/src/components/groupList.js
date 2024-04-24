@@ -100,7 +100,6 @@ function GroupsList() {
     }
 
     const getAllGroups = () => {
-        console.log('getAllGroups')
         let userData = JSON.parse(localStorage.getItem('loginData'));
         console.log(userData)
         // console.log('getLoginUser: '+userData._id)
@@ -108,7 +107,8 @@ function GroupsList() {
             axios.get(`/api/getAllGroups/`+userData._id)
             .then(res => {
                 const data = res.data;
-                console.log(data)
+        console.log('getAllGroups')
+        console.log(data)
                 setAllGroups(data)
             }).catch(e => {
                 console.log("e");

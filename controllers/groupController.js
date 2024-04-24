@@ -32,14 +32,36 @@ module.exports.getAllGroups = async (req, res) => {
         console.log("getAllGroups");
         const user = await findById(User, userId);
         const groups = await Promise.all(user.groups.map(async (grp_id) => {
-            return await findById(Group, grp_id);
+            const group = await findById(Group, grp_id);
+            // Populate members field with user IDs
+            let members = await User.find({ _id: { $in: group.members } }, '_id name email');
+            members = await members.map(user => {
+                return {
+                    ...user.toJSON(),
+                    userName: user.name + ' (' + user.email + ')'
+                };
+            });
+    
+            // Populate request_pending field with user objects
+            let group_requests = await User.find({ _id: { $in: group.group_requests } }, '_id name email');
+            group_requests = await group_requests.map(user => {
+                return {
+                    ...user.toJSON(),
+                    userName: user.name + ' (' + user.email + ')'
+                };
+            });
+            return { ...group.toObject(), members, group_requests };
         }));
+
+        console.log('groups');
+        console.log(groups);
         res.status(200).json(groups);
     } catch (error) {
         console.error("Error in getAllGroups:", error.message);
         res.status(400).json({ message: error.message });
     }
 };
+
 
 module.exports.acceptGrpReq = async (req, res) => {
     const { userId, grpId } = req.params;
