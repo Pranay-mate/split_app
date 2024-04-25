@@ -27,6 +27,7 @@ function GroupsList() {
     const [selectedGroupValue, setSelectedGroupValue] = useState("");
     const [isOpen, setIsOpen] = useState(false);
     const [isOpenGroupModal, setGroupModalOpen] = useState(false);
+    const [groupSelected, setGroupSelected] = useState(false);
     const [grpId, setGrpId] = useState("");
     const [expenseCategories, setExpenseCategories] = useState([]);
     const [userLists, setUserList] = useState([]);
@@ -149,30 +150,23 @@ function GroupsList() {
     }, []);
 
     const getUsersList = () => {
+        // let alreadyMemberOrRequestedUser = props.group.members.map((m)=> m._id)
+        // alreadyMemberOrRequestedUser = [...alreadyMemberOrRequestedUser, ...props.group.request_pending.map((m)=> m._id)];
+         
         console.log('getUsersList')
-        let userData = JSON.parse(localStorage.getItem('loginData'));
-        if(userData && userData.email != undefined && userData._id != null){
-            console.log(userData._id)
-            axios.get(`/api/getUsers/`+userData._id)
-            .then(res => {
-                const data = res.data;
-                console.log(data)
-                let userAndId = [];
-                data.map((user)=>{
-                    userAndId[user._id] = user.name;
-                })
-                setUserAndIds(userAndId)
-                let grpCreationData = data.filter((user)=> user._id != userData._id)
-                setOptions(grpCreationData)
-                let loginUserData = data.filter((user)=> user._id == userData._id)
-                console.log(loginUserData)
-                setSelectPaidUser(userData._id)
-                setSelectedValue(loginUserData)
-                setUserList(data)
-            }).catch(e => {
-                console.log("e");
-            });
-        }
+        axios.get(`/api/getUsers/`)
+        .then(res => {
+            let data = res.data;
+            console.log('getUsers')
+            console.log(data)
+            // data = data.filter((user)=> !alreadyMemberOrRequestedUser.includes(user._id))
+            console.log('afterFilter')
+            console.log(data)
+            setUserList(data)
+        }).catch(e => {
+            console.log(e);
+            // handleResponse(e.message, 'danger');
+        });
     }
 
     const getExpenseCategory = ()=>{
@@ -279,21 +273,33 @@ function GroupsList() {
         console.log(selectedItem._id)
     }
 
-    const onSelectPaidUser = (selectedList, selectedItem)=> {
-        setSelectPaidUser(selectedItem._id)
-        console.log(selectedItem._id)
-    }
+    const [groupSelectionChange, setGroupSelectionChange] = useState(0);
 
-    const onSelectSplitIn = (selectedList, selectedItem)=> {
-        setSelectSplitIn(selectedList)
-        console.log(selectedList)
-    }
-
-    const onSelectGroup = (selectedList, selectedItem)=>{
+    const onSelectGroup = (selectedList, selectedItem) => {
         setSelectedGroup(selectedItem._id);
-        console.log(selectedItem._id)
-    }
-    
+        setUserList(selectedItem.members);
+        setGroupSelected(true);
+        setGroupSelectionChange(groupSelectionChange + 1); // Increment the group selection change
+    };
+
+    const onSelectPaidUser = (selectedList, selectedItem) => {
+        setSelectPaidUser(selectedItem._id);
+        console.log(selectedItem._id);
+    };
+
+    const onSelectSplitIn = (selectedList, selectedItem) => {
+        setSelectSplitIn(selectedList);
+        console.log(selectedList);
+    };
+
+    useEffect(() => {
+        // Reset selected users whenever group selection changes
+        setSelectPaidUser("");
+        setSelectSplitIn([]);
+        console.log('selectPaidUser')
+        console.log(selectPaidUser)
+    }, [groupSelectionChange]);
+
     const addGroup = () => {
         console.log('restrictttttttttted');
         let userData = JSON.parse(localStorage.getItem('loginData'));
@@ -325,6 +331,11 @@ function GroupsList() {
     const onRemove = (selectedList, removedItem)=> {
         console.log(selectedList)
         setSelectedList(selectedList)
+    }
+
+    const openCreateGroupModel = () =>{
+        getUsersList()
+        setGroupModalOpen(true)
     }
 
 return (
@@ -393,9 +404,9 @@ return (
             </Row>  
         )): null}
         <div className='text-center'>
-            <Button variant='outline-secondary' onClick={()=>setGroupModalOpen(true)}><AiOutlineUsergroupAdd size={22} className='mb-1' />Create New Group</Button>
+            <Button variant='outline-secondary' onClick={()=> openCreateGroupModel()}><AiOutlineUsergroupAdd size={22} className='mb-1' />Create New Group</Button>
         </div>
-        <Modal show={isOpen} onHide={hideModal}>
+        {/* <Modal show={isOpen} onHide={hideModal} style={{color:"black"}}>
             <Modal.Header>
             <Modal.Title>Add Expense</Modal.Title>
             </Modal.Header>
@@ -429,34 +440,45 @@ return (
                     <Row className='mb-3  mx-1'>
                         <Form.Control placeholder="Amount in ₹" onChange={(e)=>setExpenseAmount(e.target.value)} />
                     </Row>
-                    <Row>Paid by</Row>
-                    <Row  className='mb-3'>
-                        <Multiselect
-                        options={userLists} // Options to display in the dropdown
-                        selectedValues={selectedValue} // Preselected value to persist in dropdown
-                        onSelect={onSelectPaidUser} // Function will trigger on select event
-                        onRemove={onSelectPaidUser} // Function will trigger on remove event
-                        displayValue="name"
-                        singleSelect
-                        />
-                    </Row>
-                    <Row>and split in</Row>
-                    <Row>
-                        <Multiselect
-                        options={userLists} // Options to display in the dropdown
-                        selectedValues={selectedValue} // Preselected value to persist in dropdown
-                        onSelect={onSelectSplitIn} // Function will trigger on select event
-                        onRemove={onSelectSplitIn} // Function will trigger on remove event
-                        displayValue="name"
-                        />
-                    </Row>
+                    {
+                        groupSelected ? (
+                            <>
+                                <Row className='mx-1'>
+                                    Paid by
+                                </Row>
+                                <Row  className='mb-3'>
+                                    <Multiselect
+                                    options={userLists} // Options to display in the dropdown
+                                    selectedValues={selectedValue} // Preselected value to persist in dropdown
+                                    onSelect={onSelectPaidUser} // Function will trigger on select event
+                                    onRemove={onSelectPaidUser} // Function will trigger on remove event
+                                    displayValue="name"
+                                    singleSelect
+                                    />
+                                </Row>
+                                <Row className='mx-1'>
+                                    and split in
+                                </Row>
+                                <Row>
+                                    <Multiselect
+                                    options={userLists} // Options to display in the dropdown
+                                    selectedValues={selectedValue} // Preselected value to persist in dropdown
+                                    onSelect={onSelectSplitIn} // Function will trigger on select event
+                                    onRemove={onSelectSplitIn} // Function will trigger on remove event
+                                    displayValue="name"
+                                    />
+                                </Row>
+                            </>
+                        ) : null
+                    }
+                    
                 </Form>
             </Modal.Body>
             <Modal.Footer>
             <Button onClick={()=>hideModal()} >Cancel</Button>
             <Button onClick={(e)=>saveExpense()} variant="danger">Save</Button>
             </Modal.Footer>
-        </Modal>
+        </Modal> */}
         {/* Add Group Modal */}
         <Modal show={isOpenGroupModal} onHide={hideGroupModal}>
             <Modal.Header>
@@ -469,7 +491,7 @@ return (
                     </Form.Group>
                     <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
                         <Multiselect
-                        options={options} // Options to display in the dropdown
+                        options={userLists} // Options to display in the dropdown
                         selectedValues={selectedGroupValue} // Preselected value to persist in dropdown
                         onSelect={onSelect} // Function will trigger on select event
                         onRemove={onRemove} // Function will trigger on remove event
@@ -494,7 +516,7 @@ return (
         <GroupDashboard group={openedGroup[0]}></GroupDashboard>
        </div>
         }
-        <Button  variant="success" className="add_expense_sticky_button rounded-pill" onClick={()=>openModel()}><MdListAlt size="22" className="mx-1 mb-1" />Add Expense</Button>
+        {/* <Button  variant="success" className="add_expense_sticky_button rounded-pill" onClick={()=>openModel()}><MdListAlt size="22" className="mx-1 mb-1" />Add Expense</Button> */}
         </>
         :<Loader></Loader>}
     </div>

@@ -35,24 +35,24 @@ function Activity() {
 
     // Function to fetch user list
     const getUsersList = () => {
-        if (userData && userData._id) {
-            axios.get(`/api/getUsers/${userData._id}`)
-                .then(res => {
-                    const data = res.data;
-                    let usersAndIds = {};
-                    data.forEach(user => usersAndIds[user._id] = user.name);
-                    setUserAndIds(usersAndIds);
-                })
-                .catch(error => {
-                    if (error.response && error.response.status === 400) {
-                        console.log(error.response.data.message);
-                        // Handle 400 status error
-                    } else {
-                        console.error(error);
-                    }
-                });
-        }
-    };
+        // let alreadyMemberOrRequestedUser = props.group.members.map((m)=> m._id)
+        // alreadyMemberOrRequestedUser = [...alreadyMemberOrRequestedUser, ...props.group.request_pending.map((m)=> m._id)];
+         
+        console.log('getUsersList')
+        axios.get(`/api/getUsers/`)
+        .then(res => {
+            let data = res.data;
+            console.log('getUsers')
+            console.log(data)
+            // data = data.filter((user)=> !alreadyMemberOrRequestedUser.includes(user._id))
+            console.log('afterFilter')
+            console.log(data)
+            // setUserList(data)
+        }).catch(e => {
+            console.log(e);
+            // handleResponse(e.message, 'danger');
+        });
+    }
 
     // Function to fetch all groups
     const getAllGroups = () => {

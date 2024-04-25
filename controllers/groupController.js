@@ -11,6 +11,10 @@ const findByEmail = async (Model, email) => {
     return await Model.findOne({ email: email });
 };
 
+const findByIdAndUpdate = async (Model, id, update) => {
+    return await Model.findByIdAndUpdate(id, update, { new: true });
+};
+
 module.exports.getGroupRequests = async (req, res) => {
     const { userId } = req.params;
     try {
@@ -67,35 +71,47 @@ module.exports.acceptGrpReq = async (req, res) => {
     const { userId, grpId } = req.params;
     try {
         console.log("acceptGrpReq");
-        const user = await findById(User, userId);
-        if (user.groups.includes(grpId)) {
-            return res.status(200).json({ message: "Request Already accepted" });
-        } else {
-            const user_grp_req = user.group_requests.filter((requestId) => requestId !== grpId);
-            user.groups.push(grpId);
-            await User.findByIdAndUpdate(userId, { "group_requests": user_grp_req, 'groups': user.groups });
-            const group = await findById(Group, grpId);
-            const grp_table_req = group.request_pending.filter((requestId) => requestId !== userId);
-            group.members.push(userId);
-            await Group.findByIdAndUpdate(grpId, { "request_pending": grp_table_req, 'members': group.members });
-            res.status(200).json({ message: "Group request accepted" });
+        const userUpdate = { $pull: { group_requests: grpId }, $addToSet: { groups: grpId } };
+        const group = await findById(Group, grpId);
+
+        // Check if the user is already a member of the group
+        if (group.members.includes(userId)) {
+            return res.status(200).json({ message: "User is already a member of the group" });
         }
+
+        // Add the user to the members of the group
+        const groupUpdate = { $pull: { request_pending: userId }, $addToSet: { members: userId } };
+
+        await Promise.all([
+            findByIdAndUpdate(User, userId, userUpdate),
+            findByIdAndUpdate(Group, grpId, groupUpdate)
+        ]);
+
+        // Remove user ID from the request_pending column of the group
+        await Group.findByIdAndUpdate(grpId, { $pull: { request_pending: userId } });
+
+        res.status(200).json({ message: "Group request accepted" });
     } catch (error) {
         console.error("Error in acceptGrpReq:", error.message);
         res.status(400).json({ message: error.message });
     }
 };
 
+
 module.exports.declineGrpReq = async (req, res) => {
     const { userId, grpId } = req.params;
     try {
         console.log("declineGrpReq");
-        const user = await findById(User, userId);
-        const user_grp_req = user.group_requests.filter((requestId) => requestId !== grpId);
-        await User.findByIdAndUpdate(userId, { "group_requests": user_grp_req });
-        const group = await findById(Group, grpId);
-        const grp_table_req = group.request_pending.filter((requestId) => requestId !== userId);
-        await Group.findByIdAndUpdate(grpId, { "request_pending": grp_table_req });
+        const userUpdate = { $pull: { group_requests: grpId } };
+        const groupUpdate = { $pull: { request_pending: userId } };
+
+        await Promise.all([
+            findByIdAndUpdate(User, userId, userUpdate),
+            findByIdAndUpdate(Group, grpId, groupUpdate)
+        ]);
+
+        await Group.findByIdAndUpdate(grpId, { $pull: { request_pending: userId } });
+        
         res.status(200).json({ message: "Group request declined" });
     } catch (error) {
         console.error("Error in declineGrpReq:", error.message);
